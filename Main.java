@@ -10,6 +10,8 @@ import java.util.Scanner;
 * Geny Arado (laranja), Geny.
 */
 
+//TODO: sistema de eventos e inventário; loja, taverna, baú e porta.
+
 public class Main{
     public static void main(String[] args){
         Visual visualg = new Visual();

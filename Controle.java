@@ -1,20 +1,25 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public final class Controle{
     private Visual visualg;
     private Banco arquivista;
     private Scanner teclado;
     
-    private boolean rodarJogo, debug;
+    private boolean rodarJogo, debug, bloqueio;
     private int entrada, pos_x, pos_y;
-    private String estado;
+    private String estado, mapaAtual, blocoAtual;
+    private ArrayList<String> caracteres;
     
     public Controle(Visual visualg, Banco arquivista, Scanner teclado){
         this.visualg = visualg;
         this.arquivista = arquivista;
         this.teclado = teclado;
+        caracteres = new ArrayList<String>();
+        
         estado = "Título";
+        mapaAtual = "Teste";
         rodarJogo = true;
         debug = false;
         iniciarJogo();
@@ -29,7 +34,7 @@ public final class Controle{
 			    pos_x = arquivista.getJogador_x();
 			    pos_y = arquivista.getJogador_y();
 			    if (debug == true) mostrarDebug();
-                visualg.desenhaMapa("Teste", pos_x, pos_y);
+                visualg.desenhaMapa(mapaAtual, pos_x, pos_y);
                 visualg.desenhaMenu("Comandos");
                 receberComandos();
             }
@@ -126,9 +131,9 @@ public final class Controle{
     }
     
     private void moverJogador(String direçãoJogador){
-        //anterior_x = pos_x;
-        //anterior_y = pos_y;
-
+        arquivista.setJogadorAnterior_x(pos_x);
+        arquivista.setJogadorAnterior_y(pos_y);
+        
         if (direçãoJogador == "Esquerda"){
             pos_y = arquivista.getJogador_y();
             pos_y--;
@@ -147,6 +152,30 @@ public final class Controle{
         if (direçãoJogador == "Baixo"){
             pos_x = arquivista.getJogador_x();
             pos_x++;
+            arquivista.setJogador_x(pos_x);
+        }
+        bloquearJogador(direçãoJogador); //Desfaz o último movimento se não for transponível.
+    }
+    
+    private void bloquearJogador(String direçãoJogador){
+        blocoAtual = visualg.getBlocoAtual(pos_x, pos_y);
+        
+        bloqueio = arquivista.getBloqueio(blocoAtual);
+        
+        if (direçãoJogador == "Esquerda" && bloqueio == true){
+            pos_y = arquivista.getJogadorAnterior_y();
+            arquivista.setJogador_y(pos_y);
+        }
+        if (direçãoJogador == "Direita" && bloqueio == true){
+            pos_y = arquivista.getJogadorAnterior_y();
+            arquivista.setJogador_y(pos_y);
+        }
+        if (direçãoJogador == "Cima" && bloqueio == true){
+            pos_x = arquivista.getJogadorAnterior_x();
+            arquivista.setJogador_x(pos_x);
+        }
+        if (direçãoJogador == "Baixo" && bloqueio == true){
+            pos_x = arquivista.getJogadorAnterior_x();
             arquivista.setJogador_x(pos_x);
         }
     }

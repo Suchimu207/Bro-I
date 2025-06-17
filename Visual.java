@@ -8,7 +8,7 @@ public final class Visual{
     private String quadro;
     private String[][] mapaAtual;
     
-    private String os, título;
+    private String os, título, texto;
     private int saída;
     private final String verde, branco, vermelho, laranja, azul, roxo, amarelo, rosa, reseta;
     
@@ -59,15 +59,7 @@ public final class Visual{
             for (int i = 0; i < linhas.size(); i++) mapaAtual[i] = linhas.get(i).split("");
         
 			System.out.println("");
-            for (int linha = 0; linha < mapaAtual.length; linha++) {
-            for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
-                if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
-                    mapaAtual[pos_x][pos_y] = "@";
-                }
-				System.out.print(mapaAtual[linha][coluna]);
-            }
-            System.out.println("");
-        }
+			desenhaCaractere(pos_x, pos_y);
         }catch(IOException e){
             System.out.println(vermelho+"Falha ao desenhar mapa: "+e.getMessage()+"."+reseta);
         }
@@ -92,6 +84,24 @@ public final class Visual{
         }catch (InterruptedException e){
             System.out.println(vermelho+"Falha no comando esperar: "+e.getMessage()+"."+reseta);
         }
+    }
+    
+    private void desenhaCaractere(int pos_x, int pos_y){
+        for (int linha = 0; linha < mapaAtual.length; linha++) {
+            for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
+                if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
+                    mapaAtual[pos_x][pos_y] = "@";
+                    System.out.print(mapaAtual[linha][coluna]);
+                }else if (mapaAtual[linha][coluna].equals("~")){
+                    System.out.print(azul+mapaAtual[linha][coluna]+reseta);
+                }else if(mapaAtual[linha][coluna].equals("b") || mapaAtual[linha][coluna].equals("T")
+                || mapaAtual[linha][coluna].equals("$")){
+                    System.out.print(amarelo+mapaAtual[linha][coluna]+reseta);
+                }else System.out.print(branco+mapaAtual[linha][coluna]+reseta);
+            }
+            System.out.println(""); //Pula para a próxima linha.
+        }
+      //===
     }
     
     private void desenhaArte(String arte){
@@ -124,7 +134,7 @@ public final class Visual{
         System.out.println("5. Inventário     6. Título ");
         System.out.println(branco+"============================="+reseta);
     }
-    
+
     private void desenhaSeta(){
         System.out.print(branco+">"+reseta);
     }
@@ -139,6 +149,11 @@ public final class Visual{
         espera(870); System.out.print(branco+".");
         espera(780); System.out.print(branco+".");
         espera(100); limpaTela();
+    }
+    
+    public String getBlocoAtual(int pos_x, int pos_y){
+        texto = mapaAtual[pos_x][pos_y];
+        return texto;
     }
     
   //===    
