@@ -21,8 +21,8 @@ public final class Banco{
     private String blocoAparência;
     private boolean blocoBloqueio;
     
-    private int posJogador_x, posJogador_y;
-    private int posJogadorAnterior_x, posJogadorAnterior_y;
+    private static int posJogador_x, posJogador_y;
+    private static int posJogadorAnterior_x, posJogadorAnterior_y;
     
     public Banco(){
         posJogador_x = 3;
@@ -45,36 +45,41 @@ public final class Banco{
         caracteres.add(ÁguaBloco);
     }
     
-    public int getJogador_x(){
-        return this.posJogador_x;
+	public static void resetaInformações(){
+		posJogador_x = 3;
+        posJogador_y = 9;
+	}
+	
+    public static int getJogador_x(){
+        return posJogador_x;
     }
     
-    public int getJogador_y(){
-        return this.posJogador_y;
+    public static int getJogador_y(){
+        return posJogador_y;
     }
     
-    public void setJogador_x(int posJogador_x){
-        this.posJogador_x = posJogador_x;
+    public static void setJogador_x(int posiçãoJogador_x){
+        posJogador_x = posiçãoJogador_x;
     }
     
-    public void setJogador_y(int posJogador_y){
-        this.posJogador_y = posJogador_y;
+    public static void setJogador_y(int posiçãoJogador_y){
+        posJogador_y = posiçãoJogador_y;
     }
     
-    public void setJogadorAnterior_x(int posJogador_x){
-        this.posJogadorAnterior_x = posJogador_x;
+    public static void setJogadorAnterior_x(int posiçãoJogador_x){
+        posJogadorAnterior_x = posiçãoJogador_x;
     }
     
-    public int getJogadorAnterior_x(){
-        return this.posJogadorAnterior_x;
+    public static int getJogadorAnterior_x(){
+        return posJogadorAnterior_x;
     }
     
-    public int getJogadorAnterior_y(){
-        return this.posJogadorAnterior_y;
+    public static int getJogadorAnterior_y(){
+        return posJogadorAnterior_y;
     }
     
-    public void setJogadorAnterior_y(int posJogador_y){
-        this.posJogadorAnterior_y = posJogador_y;
+    public static void setJogadorAnterior_y(int posiçãoJogador_y){
+        posJogadorAnterior_y = posiçãoJogador_y;
     }
 
     public boolean getBloqueio(String blocoAtual){

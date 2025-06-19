@@ -7,9 +7,9 @@ public final class Controle{
     private Banco arquivista;
     private Scanner teclado;
     
-    private boolean rodarJogo, debug, bloqueio;
-    private int entrada, pos_x, pos_y;
-    private String estado, mapaAtual, blocoAtual;
+    private boolean rodarJogo, debug, bloqueioBloco, bloqueioLimite;
+    private int entrada, pos_x, pos_y, mapaTamanhoX, mapaTamanhoY;
+    private String estadoJogo, mapaAtual, blocoAtual, direçãoJogador;
     private ArrayList<String> caracteres;
     
     public Controle(Visual visualg, Banco arquivista, Scanner teclado){
@@ -18,23 +18,25 @@ public final class Controle{
         this.teclado = teclado;
         caracteres = new ArrayList<String>();
         
-        estado = "Título";
+        estadoJogo = "Título";
         mapaAtual = "Teste";
         rodarJogo = true;
         debug = false;
+		bloqueioBloco = false;
+		bloqueioLimite = false;
         iniciarJogo();
     }
     
     private void iniciarJogo(){
         do{
-            if (estado == "Título"){
-                açãoTítulo();
-            }else if (estado == "Mapa"){
-                visualg.desenhaMenu("LimpaTela");
-			    pos_x = arquivista.getJogador_x();
-			    pos_y = arquivista.getJogador_y();
+			visualg.desenhaMenu("LimpaTela");
+            if (estadoJogo == "Título"){
+				açãoTítulo();
+            }else if (estadoJogo == "Mapa"){
+			    pos_x = Banco.getJogador_x();
+			    pos_y = Banco.getJogador_y();
 			    if (debug == true) mostrarDebug();
-                visualg.desenhaMapa(mapaAtual, pos_x, pos_y);
+			    visualg.desenhaMapa(mapaAtual, pos_x, pos_y);
                 visualg.desenhaMenu("Comandos");
                 receberComandos();
             }
@@ -42,7 +44,7 @@ public final class Controle{
     }
     
     private void receberComandos(){
-        visualg.desenhaMenu("Seta"); entrada = teclado.nextInt(); System.out.print("\n");
+        tratarEntrada(); System.out.print("\n");
         switch (entrada){
             case 1:
             açãoUm();
@@ -60,8 +62,7 @@ public final class Controle{
             açãoInventário();
             break;
             case 6:
-            estado = "Título";
-            açãoTítulo();
+            estadoJogo = "Título";
             break;
             case 7:
             break;
@@ -71,27 +72,58 @@ public final class Controle{
             }
     }
     
+    private void tratarEntrada(){
+        try{
+            visualg.desenhaMenu("Seta"); entrada = teclado.nextInt();
+        }catch(InputMismatchException e){
+            visualg.desenhaErro("Entrada");
+            entrada = 0;
+        }finally{
+            teclado.nextLine();
+        }
+    }
+    
+    private void tratarMovimento(){
+        try{
+            moverJogador();
+        }catch(ArrayIndexOutOfBoundsException e){
+            if (estadoJogo == "Mapa"){
+				visualg.desenhaErro("Movimento");
+				bloqueioLimite=true;
+			}
+        }finally{
+			if (direçãoJogador == "Esquerda" && bloqueioLimite == true || 
+            direçãoJogador == "Direita" && bloqueioLimite == true){
+            pos_y = Banco.getJogadorAnterior_y();
+            Banco.setJogador_y(pos_y);
+            }
+            if (direçãoJogador == "Cima" && bloqueioLimite == true ||
+            direçãoJogador == "Baixo" && bloqueioLimite == true){
+            pos_x = Banco.getJogadorAnterior_x();
+            Banco.setJogador_x(pos_x);
+            }
+			bloqueioLimite=false;
+        }
+    }
+
     private void açãoUm(){
-        if (estado == "Título"){
-            estado = "Mapa";
-        }else if (estado == "Mapa") moverJogador("Esquerda");
+        if (estadoJogo == "Mapa") direçãoJogador="Esquerda"; tratarMovimento();
     }
     
     private void açãoDois(){
-        if (estado == "Título"){
-            estado = "Mapa";
-        }else if (estado == "Mapa") moverJogador("Direita");
+        if(estadoJogo == "Mapa") direçãoJogador="Direita"; tratarMovimento();
     }
     
     private void açãoTrês(){
-        if (estado == "Título"){
+        if (estadoJogo == "Título"){
             visualg.desenhaMenu("Sair");
             rodarJogo = false;
-        }else if (estado == "Mapa") moverJogador("Cima");
+			estadoJogo = "";
+        }else if (estadoJogo == "Mapa") direçãoJogador="Cima"; tratarMovimento();
     }
     
     private void açãoQuatro(){
-        moverJogador("Baixo");
+        direçãoJogador="Baixo"; tratarMovimento();
     }
     
     private void açãoInventário(){
@@ -99,15 +131,15 @@ public final class Controle{
     }
     
     private void açãoTítulo(){
-        visualg.desenhaMenu("LimpaTela");
         visualg.desenhaMenu("Título");
-        visualg.desenhaMenu("Seta"); entrada = teclado.nextInt();
+        tratarEntrada();
         switch (entrada){
             case 1:
-            açãoUm();
+			Banco.resetaInformações();
+            estadoJogo = "Mapa";
             break;
             case 2:
-            açãoDois();
+            estadoJogo = "Mapa";
             break;
             case 3:
             açãoTrês();
@@ -127,58 +159,62 @@ public final class Controle{
     private void mostrarDebug(){
         pos_x = arquivista.getJogador_x();
 		pos_y = arquivista.getJogador_y();
+		mapaTamanhoX = visualg.getQuantidadeLinhasX()-1;
+		mapaTamanhoY = visualg.getQuantidadeColunasY(); //Número exato.
         System.out.println("Jogador_X: "+pos_x+"\nJogador_Y: "+pos_y);
+		System.out.println("TamanhoMapa_X: "+mapaTamanhoX+"\nTamanhoMapa_Y: "+mapaTamanhoY);
     }
     
-    private void moverJogador(String direçãoJogador){
-        arquivista.setJogadorAnterior_x(pos_x);
-        arquivista.setJogadorAnterior_y(pos_y);
-        
+    private void moverJogador(){
+		Banco.setJogadorAnterior_x(pos_x);
+        Banco.setJogadorAnterior_y(pos_y);
+			
         if (direçãoJogador == "Esquerda"){
-            pos_y = arquivista.getJogador_y();
+            pos_y = Banco.getJogador_y();
             pos_y--;
-            arquivista.setJogador_y(pos_y);
+            Banco.setJogador_y(pos_y);
         }
         if (direçãoJogador == "Direita"){
-            pos_y = arquivista.getJogador_y();
+            pos_y = Banco.getJogador_y();
             pos_y++;
-            arquivista.setJogador_y(pos_y);
+            Banco.setJogador_y(pos_y);
         }
         if (direçãoJogador == "Cima"){
-            pos_x = arquivista.getJogador_x();
+            pos_x = Banco.getJogador_x();
             pos_x--;
-            arquivista.setJogador_x(pos_x);
+            Banco.setJogador_x(pos_x);
         }
         if (direçãoJogador == "Baixo"){
-            pos_x = arquivista.getJogador_x();
+            pos_x = Banco.getJogador_x();
             pos_x++;
-            arquivista.setJogador_x(pos_x);
+            Banco.setJogador_x(pos_x);
         }
-        bloquearJogador(direçãoJogador); //Desfaz o último movimento se não for transponível.
+        bloquearJogador(); //Desfaz o último movimento se não for transponível.
+	}
+    
+    private void bloquearJogador(){
+        blocoAtual = visualg.getBlocoAtual(pos_x, pos_y);
+        bloqueioBloco = arquivista.getBloqueio(blocoAtual);
+        
+        if (direçãoJogador == "Esquerda" && bloqueioBloco == true || 
+        direçãoJogador == "Direita" && bloqueioBloco == true){
+            pos_y = Banco.getJogadorAnterior_y();
+            Banco.setJogador_y(pos_y);
+        }
+        if (direçãoJogador == "Cima" && bloqueioBloco == true ||
+        direçãoJogador == "Baixo" && bloqueioBloco == true){
+            pos_x = Banco.getJogadorAnterior_x();
+            Banco.setJogador_x(pos_x);
+        }
+		bloqueioBloco=false;
     }
     
-    private void bloquearJogador(String direçãoJogador){
+    /* A verificação é feita um bloco acima e abaixo, e um pros lados, além da posição atual.
+    private void verificarEvento(){
         blocoAtual = visualg.getBlocoAtual(pos_x, pos_y);
-        
-        bloqueio = arquivista.getBloqueio(blocoAtual);
-        
-        if (direçãoJogador == "Esquerda" && bloqueio == true){
-            pos_y = arquivista.getJogadorAnterior_y();
-            arquivista.setJogador_y(pos_y);
-        }
-        if (direçãoJogador == "Direita" && bloqueio == true){
-            pos_y = arquivista.getJogadorAnterior_y();
-            arquivista.setJogador_y(pos_y);
-        }
-        if (direçãoJogador == "Cima" && bloqueio == true){
-            pos_x = arquivista.getJogadorAnterior_x();
-            arquivista.setJogador_x(pos_x);
-        }
-        if (direçãoJogador == "Baixo" && bloqueio == true){
-            pos_x = arquivista.getJogadorAnterior_x();
-            arquivista.setJogador_x(pos_x);
-        }
+        boolean evento = arquivista
     }
+    */
 
   //===
 }

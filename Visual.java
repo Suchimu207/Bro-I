@@ -9,7 +9,7 @@ public final class Visual{
     private String[][] mapaAtual;
     
     private String os, título, texto;
-    private int saída;
+    private int saída, quantidadeLinhasX, quantidadeColunasY;
     private final String verde, branco, vermelho, laranja, azul, roxo, amarelo, rosa, reseta;
     
     public Visual(){
@@ -47,7 +47,7 @@ public final class Visual{
             desenhaSair();
         }else if (menu == "LimpaTela"){
 			limpaTela();
-		}	
+		}
       //=== 
     }
     
@@ -55,14 +55,30 @@ public final class Visual{
         try{
 			List<String> linhas = Files.readAllLines(Paths.get("Mapas\\"+mapa+".txt"));
             
+			quantidadeLinhasX = 0;
+			quantidadeColunasY = 0;
+			
             mapaAtual = new String[linhas.size()][];
-            for (int i = 0; i < linhas.size(); i++) mapaAtual[i] = linhas.get(i).split("");
-        
+			for (int i = 0; i < linhas.size(); i++) mapaAtual[i] = linhas.get(i).split("");
+			quantidadeLinhasX = linhas.size();
+			
 			System.out.println("");
 			desenhaCaractere(pos_x, pos_y);
         }catch(IOException e){
             System.out.println(vermelho+"Falha ao desenhar mapa: "+e.getMessage()+"."+reseta);
         }
+    }
+    
+    public void desenhaErro(String erro){
+        System.out.println("");
+        if (erro == "Entrada"){
+            System.out.println(vermelho+"Insira uma entrada válida."+reseta);
+            espera(1500);
+        }else if (erro == "Movimento"){
+            System.out.println(vermelho+"Movimento inválido."+reseta);
+        }
+        espera(1500);
+      //===
     }
     
     private void limpaTela(){
@@ -88,8 +104,8 @@ public final class Visual{
     
     private void desenhaCaractere(int pos_x, int pos_y){
         for (int linha = 0; linha < mapaAtual.length; linha++) {
-            for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
-                if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
+			for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
+				if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
                     mapaAtual[pos_x][pos_y] = "@";
                     System.out.print(mapaAtual[linha][coluna]);
                 }else if (mapaAtual[linha][coluna].equals("~")){
@@ -98,6 +114,7 @@ public final class Visual{
                 || mapaAtual[linha][coluna].equals("$")){
                     System.out.print(amarelo+mapaAtual[linha][coluna]+reseta);
                 }else System.out.print(branco+mapaAtual[linha][coluna]+reseta);
+				quantidadeColunasY = coluna;
             }
             System.out.println(""); //Pula para a próxima linha.
         }
@@ -152,9 +169,19 @@ public final class Visual{
     }
     
     public String getBlocoAtual(int pos_x, int pos_y){
-        texto = mapaAtual[pos_x][pos_y];
+        if (mapaAtual == null){
+            texto = "";
+        }else texto = mapaAtual[pos_x][pos_y];
         return texto;
     }
-    
-  //===    
+	
+	public int getQuantidadeLinhasX(){
+		return quantidadeLinhasX;
+	}
+	
+	public int getQuantidadeColunasY(){
+		return quantidadeColunasY;
+	}
+	
+  //===
 }
