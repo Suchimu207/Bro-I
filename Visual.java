@@ -30,27 +30,22 @@ public final class Visual{
             try{
             new ProcessBuilder("cmd", "/c", "title " + título).inheritIO().start();
         }catch (Exception e){
-            System.out.println(vermelho+"Ocorreu um erro: "+e.getMessage()+"."+reseta); 
-            espera(2000);
+            System.out.println(vermelho+"Ocorreu um erro ao limpar a tela: "+e.getMessage()+"."+reseta); 
+            espera(1500);
             }
         }
     }
     
-    public void desenhaMenu(String menu){
+    public void desenhaMenu(String menu, boolean eventoAtivo, String mapaAtual, int pos_x, int pos_y, String tipoEvento){
         if (menu == "Título"){
-            desenhaTítulo(); 
+            tipoEvento = "";
+			desenhaTítulo(); 
         }else if (menu == "Comandos"){
-            desenhaComandos();
-        }else if (menu == "Seta"){
-            desenhaSeta();
-        }else if(menu == "Sair"){
-            desenhaSair();
-        }else if (menu == "LimpaTela"){
-			limpaTela();
-		}
-      //=== 
+            desenhaComandos(eventoAtivo, mapaAtual, pos_x, pos_y, tipoEvento);
+        }
+      //===
     }
-    
+	
     public void desenhaMapa(String mapa, int pos_x, int pos_y){
         try{
 			List<String> linhas = Files.readAllLines(Paths.get("Mapas\\"+mapa+".txt"));
@@ -80,8 +75,16 @@ public final class Visual{
         espera(1500);
       //===
     }
-    
-    private void limpaTela(){
+	
+	public void desenhaSeta(){
+        System.out.print(branco+">"+reseta);
+    }
+	
+	public void desenhaBarra(){
+        System.out.print(branco+"============================================"+reseta+"\n");
+      }
+
+    public void limpaTela(){
         try {
             if (os.contains("win")){
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
@@ -107,14 +110,14 @@ public final class Visual{
 			for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
 				if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
                     mapaAtual[pos_x][pos_y] = "@";
-                    System.out.print(mapaAtual[linha][coluna]);
+					System.out.print(mapaAtual[linha][coluna]);
                 }else if (mapaAtual[linha][coluna].equals("~")){
                     System.out.print(azul+mapaAtual[linha][coluna]+reseta);
                 }else if(mapaAtual[linha][coluna].equals("b") || mapaAtual[linha][coluna].equals("T")
-                || mapaAtual[linha][coluna].equals("$")){
+                || mapaAtual[linha][coluna].equals("$") || mapaAtual[linha][coluna].equals("*")){
                     System.out.print(amarelo+mapaAtual[linha][coluna]+reseta);
                 }else System.out.print(branco+mapaAtual[linha][coluna]+reseta);
-				quantidadeColunasY = coluna;
+					quantidadeColunasY = coluna;
             }
             System.out.println(""); //Pula para a próxima linha.
         }
@@ -144,23 +147,30 @@ public final class Visual{
 		desenhaBarra();
     }
 
-    private void desenhaComandos(){
+    private void desenhaComandos(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento){
         System.out.println(branco+"============================="+reseta);
         System.out.println("1. Esquerda       2. Direita");
         System.out.println("3. Cima           4. Baixo  ");
         System.out.println("5. Inventário     6. Título ");
+		if(eventoAtivo) desenhaNomeEvento(eventoAtivo, mapaNome, pos_x, pos_y, tipoEvento);
         System.out.println(branco+"============================="+reseta);
     }
+	
+	private void desenhaNomeEvento(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento){
+		if (eventoAtivo == true && tipoEvento.equals("báu") && mapaNome == "Teste"){
+			System.out.println("7. Abrir báu");
+		}else if (eventoAtivo == true && tipoEvento.equals("loja") && mapaNome == "Teste"){
+			System.out.println("7. Entrar na loja");
+		}else if (eventoAtivo == true && tipoEvento.equals("taverna") && mapaNome == "Teste"){
+			System.out.println("7. Entrar na taverna");
+		}else if (eventoAtivo == true && tipoEvento.equals("transição") && mapaNome == "Teste"){
+			System.out.println("7. Transição mapa");
+		}else if (eventoAtivo == true && tipoEvento.equals("placa") && mapaNome == "Teste"){
+			System.out.println("7. Ler placa");
+		}
+	}
 
-    private void desenhaSeta(){
-        System.out.print(branco+">"+reseta);
-    }
-
-    private void desenhaBarra(){
-        System.out.print(branco+"============================================"+reseta+"\n");
-      }
-
-    private void desenhaSair(){
+    public void desenhaSair(){
         System.out.print("\n"+branco+"Fechando");
         espera(1000); System.out.print(branco+".");
         espera(870); System.out.print(branco+".");
@@ -176,10 +186,16 @@ public final class Visual{
     }
 	
 	public int getQuantidadeLinhasX(){
+		if (mapaAtual == null){
+            quantidadeLinhasX = 1;
+        }
 		return quantidadeLinhasX;
 	}
 	
 	public int getQuantidadeColunasY(){
+		if (mapaAtual == null){
+            quantidadeColunasY = 1;
+        }
 		return quantidadeColunasY;
 	}
 	

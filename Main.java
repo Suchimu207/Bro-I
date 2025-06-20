@@ -14,14 +14,15 @@ emana uma luz muito característica - não há substituto possível." ~ Hans Hof
 (plaquinha da cidade inicial).
 */
 
-//TODO: sistema de eventos e inventário; loja, taverna, baú e porta.
+//TODO: sistema de eventos; loja, taverna, baú e placa. Não consegui fazer :( Preciso de ajuda...
 
 public class Main{
     public static void main(String[] args){
         Visual visualg = new Visual();
         Banco arquivista = new Banco();
         Scanner teclado = new Scanner(System.in);
-        Controle mestre = new Controle(visualg, arquivista, teclado);
+		Eventos evento = new Eventos();
+        Controle mestre = new Controle(visualg, arquivista, teclado, evento);
         
       //===
     }
