@@ -5,30 +5,38 @@ import java.util.ArrayList;
 public final class Controle{
 	private Visual visualg;
     private Banco arquivista;
-	private Eventos evento;
 	private Scanner teclado;
+	private Eventos evento;
+	
+	private final String VAZIO = "Vazio";
     
     private boolean rodarJogo, debug, bloqueioBloco, bloqueioLimite, isEventoAtivo;
 	private boolean mapaEventos_0;
     private int entrada, posJogador_x, posJogador_y, mapaTamanhoX, mapaTamanhoY;
-	private int posEvento_x, posEvento_y;
-    private String estadoJogo, mapaAtual, blocoAtual, direçãoJogador, tipoEvento;
+	
+	private int posEvento_x, posEvento_y, eventoAtualId;
+    private String estadoJogo, mapaAtual, blocoAtual, direçãoJogador, tipoEventoAtual;
+	private String[] tipoEventos;
+
     private ArrayList<String> caracteres;
     private ArrayList<Eventos> ocorrências;
 	
-    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Eventos evento){
+    public Controle(Visual visualg, Banco arquivista, Scanner teclado, String[] tipoEventos){
         this.visualg = visualg;
         this.arquivista = arquivista;
         this.teclado = teclado;
-		this.evento = evento;
+		this.tipoEventos = tipoEventos;
 		
         caracteres = new ArrayList<String>();
 		ocorrências = new ArrayList<Eventos>();
-        
+		
         estadoJogo = "Título";
-		tipoEvento = "Vazio";
+		mapaAtual = VAZIO;
+		tipoEventoAtual = VAZIO;
+		eventoAtualId = -1;
+		
         rodarJogo = true;
-        debug = false;
+        debug = true;
 		bloqueioBloco = false;
 		bloqueioLimite = false;
 		mapaEventos_0 = false;
@@ -46,29 +54,13 @@ public final class Controle{
             }else if (estadoJogo == "Mapa"){
 				posJogador_x = Banco.getJogador_x();
 				posJogador_y = Banco.getJogador_y();
-				mapaTamanhoX = visualg.getQuantidadeLinhasX()-1;
-				mapaTamanhoY = visualg.getQuantidadeColunasY(); //Número exato.
 			    visualg.desenhaMapa(mapaAtual, posJogador_x, posJogador_y);
-				iniciarEventos();
-                visualg.desenhaMenu("Comandos", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEvento);
+                visualg.desenhaMenu("Comandos", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEventoAtual);
                 receberComandos();
             }
         }while(rodarJogo == true);
     }
 	
-	private void iniciarEventos(){
-		if(mapaEventos_0 == false && mapaAtual == "Teste"){
-			for (int linha = 0; linha < mapaTamanhoX; linha++){
-			for (int coluna = 0; coluna < mapaTamanhoY; coluna++){
-				blocoAtual = visualg.getBlocoAtual(linha, coluna);
-				evento = Eventos.criarEventos(blocoAtual, linha, coluna);
-				if (evento.getTipo() != "Vazio") ocorrências.add(evento);
-				}
-			}
-			mapaEventos_0 = true;
-		}
-	}
-    
     private void receberComandos(){
         tratarEntrada(); System.out.print("\n");
         switch (entrada){
@@ -89,7 +81,7 @@ public final class Controle{
             break;
             case 6:
             estadoJogo = "Título";
-			mapaAtual = "Vazio";
+			mapaAtual = VAZIO;
             break;
             case 7:
 			açãoEspecífica();
@@ -146,7 +138,7 @@ public final class Controle{
         if (estadoJogo == "Título"){
             visualg.desenhaSair();
             rodarJogo = false;
-			estadoJogo = "";
+			estadoJogo = VAZIO;
         }else if (estadoJogo == "Mapa") direçãoJogador="Cima"; tratarMovimento();
     }
     
@@ -159,8 +151,8 @@ public final class Controle{
     }
     
     private void açãoTítulo(){
-		tipoEvento = "Vazio";
-        visualg.desenhaMenu("Título", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEvento);
+		tipoEventoAtual = VAZIO;
+        visualg.desenhaMenu("Título", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEventoAtual);
         tratarEntrada();
         switch (entrada){
             case 1:
@@ -178,6 +170,9 @@ public final class Controle{
 			case 207:
             ativarDebug();
             break;
+			case 0:
+			visualg.reiniciarJogo();
+			break;
             }
     }
     
@@ -187,9 +182,81 @@ public final class Controle{
 		}
     }
     
-	private void ativarEvento(){
-		//Usar a classe própria Eventos.
+	private void iniciarEventos(){
+		mapaTamanhoX = visualg.getQuantidadeLinhasX()-1;
+		mapaTamanhoY = visualg.getQuantidadeColunasY(); //Número exato.
+		
+        if(mapaEventos_0 == false && "Teste".equals(mapaAtual)){   
+            montarEventos();
+            mapaEventos_0 = true;
+        }
+	  //===
+    }
+	
+	private void montarEventos(){
+		int idContador = 0;
+		for (int linha = 0; linha < mapaTamanhoX; linha++){
+            for (int coluna = 0; coluna < mapaTamanhoY+1; coluna++){
+				blocoAtual = visualg.getBlocoAtual(linha, coluna);
+				evento = Eventos.criarEvento(blocoAtual, 0, 0, 0);	
+				for (int i = 0; i <= tipoEventos.length-1; i++){
+					if(blocoAtual.equals(tipoEventos[i])){
+						evento = Eventos.criarEvento(blocoAtual, linha, coluna, ++idContador);
+						ocorrências.add(evento);
+					}
+				}
+            }
+		}
+	  //===
 	}
+	
+	private void verificarEvento(){
+		isEventoAtivo = false;
+		
+		for (Eventos evento : ocorrências){
+			if (posJogador_x == evento.getPos_x() && posJogador_y == evento.getPos_y()){
+            tipoEventoAtual = evento.getTipo();
+            eventoAtualId = evento.getId();
+            isEventoAtivo = true;
+            break;
+			}
+		}
+	}
+	
+	private void ativarEvento(){
+		for (Eventos evento : ocorrências){
+            if (evento.getId() == eventoAtualId){
+                switch (evento.getTipo()){
+                    case "báu":
+                        abrirBáu(evento);
+                        break;
+                    case "placa":
+                        lerPlaca(evento);
+                        break;
+                    case "loja":
+						break;
+					case "taverna":
+						break;
+                }
+                break;
+            }
+        }
+        isEventoAtivo = false;
+        tipoEventoAtual = VAZIO;
+	  //===
+	}
+	
+	private void abrirBáu(Eventos evento) {
+        String textO = (String) evento.getDados();
+        System.out.println(textO);
+        // Remover o evento do mapa após interação
+        ocorrências.remove(evento);
+    }
+	
+	private void lerPlaca(Eventos evento) {
+        String texto = (String) evento.getDados();
+        System.out.println(texto);
+    }
 	
     private void ativarDebug(){
         if (debug == true){
@@ -199,18 +266,14 @@ public final class Controle{
     
     private void mostrarDebug(){
 		visualg.desenhaBarra();
-        posJogador_x = arquivista.getJogador_x();
-		posJogador_y = arquivista.getJogador_y();
-		mapaTamanhoX = visualg.getQuantidadeLinhasX()-1;
-		mapaTamanhoY = visualg.getQuantidadeColunasY(); //Número exato.
-
         System.out.println("Jogador_X: "+posJogador_x+"\nJogador_Y: "+posJogador_y);
-		System.out.println("Evento_X: "+posEvento_x+"\nEvento_Y: "+posEvento_y);
 		System.out.println("TamanhoMapa_X: "+mapaTamanhoX+"\nTamanhoMapa_Y: "+mapaTamanhoY);
-		System.out.println("isEventoAtivo: "+isEventoAtivo+"\nTipoEvento: "+tipoEvento);
-		System.out.println("BloqueioBloco: "+bloqueioBloco+"\nBloqueioLimite: "+bloqueioLimite);
-		System.out.println("EstadoJogo: "+estadoJogo+"\nMapaAtual: "+mapaAtual);
+		System.out.println("isEventoAtivo: "+isEventoAtivo);
+		System.out.println("TipoEventoAtual: "+tipoEventoAtual+"\nEventoAtualId: "+eventoAtualId);
+		System.out.println("BloqueioBloco: "+bloqueioBloco+" | BloqueioLimite: "+bloqueioLimite);
+		System.out.println("EstadoJogo: "+estadoJogo+" | MapaAtual: "+mapaAtual);
 		System.out.println("Ocorrências: "+ocorrências.size());
+		System.out.println("MapaEventos_0: "+mapaEventos_0);
 		visualg.desenhaBarra();
     }
     
@@ -239,6 +302,7 @@ public final class Controle{
             Banco.setJogador_x(posJogador_x);
         }
         bloquearJogador(); //Desfaz o último movimento se não for transponível.
+		iniciarEventos();
 		verificarEvento();
 	}
     
@@ -260,26 +324,5 @@ public final class Controle{
 		blocoAtual = "";
     }
 		
-	private void verificarEvento(){
-		blocoAtual = visualg.getBlocoAtual(posJogador_x, posJogador_y); 
-	
-		posJogador_y = Banco.getJogador_y();
-		posJogador_x = Banco.getJogador_x();
-		
-		if (isEventoAtivo == false){
-			for (int i = 0; i < ocorrências.size(); i++){
-			evento = ocorrências.get(i);
-			posEvento_x = evento.getPos_x();
-			posEvento_y = evento.getPos_y();
-				if (posJogador_x == posEvento_x &&
-						posJogador_y == posEvento_y){
-						tipoEvento = evento.getTipo();
-						isEventoAtivo = true;
-						break;
-						}
-				}
-		}else isEventoAtivo = false; tipoEvento = "Vazio";
-	}
-	
   //===
 }

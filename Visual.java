@@ -7,15 +7,19 @@ import java.util.List;
 public final class Visual{
     private String quadro;
     private String[][] mapaAtual;
+	private String[] tipoEventos;
     
     private String os, título, texto;
     private int saída, quantidadeLinhasX, quantidadeColunasY;
     private final String verde, branco, vermelho, laranja, azul, roxo, amarelo, rosa, reseta;
+	
+	private boolean eventoAqui;
     
-    public Visual(){
+    public Visual(String[] tipoEventos){
+		título = "Bró I";
         os = System.getProperty("os.name").toLowerCase();
-        título = "Bró I";
-        
+        this.tipoEventos = tipoEventos;
+		
         verde = "\033[92m";
         branco = "\033[37m";
         vermelho = "\033[31m";
@@ -65,7 +69,6 @@ public final class Visual{
     }
     
     public void desenhaErro(String erro){
-        System.out.println("");
         if (erro == "Entrada"){
             System.out.println(vermelho+"Insira uma entrada válida."+reseta);
             espera(1500);
@@ -97,6 +100,20 @@ public final class Visual{
       //===
     }
     
+	public void reiniciarJogo(){
+        try {
+            if (os.contains("win")){
+                new ProcessBuilder("cmd", "/c", "java Main.java").inheritIO().start().waitFor();
+				System.exit(0);
+            }else if (os.contains("linux") || os.contains("unix")){
+                new ProcessBuilder("java Main.java").inheritIO().start().waitFor();
+            }
+        }catch (Exception e){
+            System.out.println(vermelho+"Falha ao reiniciar jogo: "+e.getMessage()+"."+reseta);
+        }
+      //===
+    }
+	
     private void espera(int segundos){
         try{
             TimeUnit.MILLISECONDS.sleep(segundos);
@@ -105,18 +122,24 @@ public final class Visual{
         }
     }
     
-    private void desenhaCaractere(int pos_x, int pos_y){
+	private void desenhaCaractere(int pos_x, int pos_y){
         for (int linha = 0; linha < mapaAtual.length; linha++) {
 			for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
+				for (int i = 0; i <= tipoEventos.length-1; i++){
+					if(mapaAtual[linha][coluna].equals(tipoEventos[i])){
+						eventoAqui = true;
+						break;
+					}else eventoAqui = false;
+				}
+				
 				if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
                     mapaAtual[pos_x][pos_y] = "@";
 					System.out.print(mapaAtual[linha][coluna]);
                 }else if (mapaAtual[linha][coluna].equals("~")){
                     System.out.print(azul+mapaAtual[linha][coluna]+reseta);
-                }else if(mapaAtual[linha][coluna].equals("b") || mapaAtual[linha][coluna].equals("T")
-                || mapaAtual[linha][coluna].equals("$") || mapaAtual[linha][coluna].equals("*")){
-                    System.out.print(amarelo+mapaAtual[linha][coluna]+reseta);
-                }else System.out.print(branco+mapaAtual[linha][coluna]+reseta);
+                }else if (eventoAqui == true){
+					System.out.print(amarelo+mapaAtual[linha][coluna]+reseta);
+				}else System.out.print(branco+mapaAtual[linha][coluna]+reseta);
 					quantidadeColunasY = coluna;
             }
             System.out.println(""); //Pula para a próxima linha.
@@ -137,7 +160,8 @@ public final class Visual{
         desenhaArte("Título");
         System.out.println(amarelo+quadro+reseta);
         System.out.println("");
-        System.out.print(branco+"Desenvolvido por "+verde+"Carlos S. Rehem"+branco+" - 2025"+reseta+"\n");
+        System.out.print(branco+"Desenvolvido por "+verde+"Carlos S. Rehem"+reseta+"\n");
+		System.out.print(branco+"Versão: 0.2"+reseta+"\n");
 		espera(100);
 		System.out.println("");
 		desenhaBarra();

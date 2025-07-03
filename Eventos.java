@@ -1,10 +1,23 @@
 import java.util.ArrayList;
 
 public class Eventos{
-	private String mapa, tipo;
-	private int pos_x, pos_y;
-	private static Eventos evento;
-
+	private int id;
+    private String tipo;
+    private int pos_x, pos_y;
+    private Object dados; // Dados específicos do evento
+	
+	public Eventos(int id, String tipo, int pos_x, int pos_y, Object dados) {
+        this.id = id;
+        this.pos_x = pos_x;
+        this.pos_y = pos_y;
+		this.tipo = tipo;
+        this.dados = dados;
+    }
+	
+	public int getId(){
+		return this.id;
+	}
+	
 	public int getPos_x(){
 		return this.pos_x;
 	}
@@ -17,35 +30,40 @@ public class Eventos{
 		return this.tipo;
 	}
 	
-	public void setPos_x(int pos_x){
-		this.pos_x = pos_x;
-	}
-	
-	public void setPos_y(int pos_y){
-		this.pos_y = pos_y;
+	public Object getDados(){
+		return this.dados;
 	}
 	
 	public void setTipo(String tipo){
 		this.tipo = tipo;
 	}
 	
-	public static Eventos criarEventos(String blocoAtual, int linha, int coluna){
-			evento = new Eventos();
-			evento.setTipo("Vazio");
-			evento.setPos_x(linha);
-			evento.setPos_y(coluna);
-			if(blocoAtual.equals("b")){
-				evento.setTipo("báu");
-			}else if (blocoAtual.equals("T")){
-				evento.setTipo("taverna");
-			}else if (blocoAtual.equals("$")){
-				evento.setTipo("loja");
-			}else if (blocoAtual.equals("*")){
-				evento.setTipo("placa");
-			}else if (blocoAtual.equals("_")){
-				evento.setTipo("transição");
-			}
-			return evento;
+	public void setId(int id){
+		this.id = id;
+	}
+	
+	public static Eventos criarEvento(String blocoAtual, int linha, int coluna, int id){
+		Object dadosEvento = null;
+        String tipoEvento = "";
+        
+        if(blocoAtual.equals("b")){
+            tipoEvento = "báu";
+            dadosEvento = "Este é um báu.";
+        }else if(blocoAtual.equals("*")){
+            tipoEvento = "placa";
+            dadosEvento = "Na natureza, a luz cria a cor..."; 
+        }else if (blocoAtual.equals("$")){
+			tipoEvento = "loja";
+            dadosEvento = "Esta é uma loja."; 
+		}else if(blocoAtual.equals("T")){
+			tipoEvento = "taverna";
+			dadosEvento = "Esta é uma taverna.";
+		}else if(blocoAtual.equals("_")){
+			tipoEvento = "transição";
+			dadosEvento = "Esta é uma transição.";
+		}
+        
+        return new Eventos(id, tipoEvento, linha, coluna, dadosEvento);
 	}
 	
   //===
