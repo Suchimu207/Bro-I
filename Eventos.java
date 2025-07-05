@@ -1,10 +1,17 @@
+import java.util.Hashtable;
 import java.util.ArrayList;
 
 public class Eventos{
+	private static Hashtable tipoDosEventos;
+	
 	private int id;
-    private String tipo;
+	private String tipo;
+	private static String tipoEvento;
+
     private int pos_x, pos_y;
-    private Object dados; // Dados específicos do evento
+	
+    private Object dados; 
+	private static Object dadosEvento;
 	
 	public Eventos(int id, String tipo, int pos_x, int pos_y, Object dados) {
         this.id = id;
@@ -42,27 +49,25 @@ public class Eventos{
 		this.id = id;
 	}
 	
-	public static Eventos criarEvento(String blocoAtual, int linha, int coluna, int id){
-		Object dadosEvento = null;
-        String tipoEvento = "";
-        
-        if(blocoAtual.equals("b")){
-            tipoEvento = "báu";
-            dadosEvento = "Este é um báu.";
-        }else if(blocoAtual.equals("*")){
-            tipoEvento = "placa";
-            dadosEvento = "Na natureza, a luz cria a cor..."; 
-        }else if (blocoAtual.equals("$")){
-			tipoEvento = "loja";
-            dadosEvento = "Esta é uma loja."; 
-		}else if(blocoAtual.equals("T")){
-			tipoEvento = "taverna";
-			dadosEvento = "Esta é uma taverna.";
-		}else if(blocoAtual.equals("_")){
-			tipoEvento = "transição";
-			dadosEvento = "Esta é uma transição.";
+	public static Eventos criarEvento(String blocoAtual, int linha, int coluna, int id, Hashtable tipoEventos){
+		tipoDosEventos = tipoEventos;
+		tipoEvento = "";
+		dadosEvento = "Este é um evento.";
+      
+		//TODO: Melhorar este troço abaixo.
+		if (tipoDosEventos.containsValue(blocoAtual)){
+			if(blocoAtual.equals("b")){
+				tipoEvento = "Báu";
+			}else if(blocoAtual.equals("*")){
+				tipoEvento = "Placa";
+			}else if (blocoAtual.equals("$")){
+				tipoEvento = "Loja";
+			}else if(blocoAtual.equals("T")){
+				tipoEvento = "Taverna";
+			}else if(blocoAtual.equals("_")){
+				tipoEvento = "Transição";
+			}
 		}
-        
         return new Eventos(id, tipoEvento, linha, coluna, dadosEvento);
 	}
 	

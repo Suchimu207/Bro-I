@@ -1,3 +1,4 @@
+import java.util.Hashtable;
 import java.util.ArrayList;
 
 public final class Banco{
@@ -21,52 +22,66 @@ public final class Banco{
     }
     
     private ArrayList<Caractere> caracteres;
+	private Hashtable tipoEventos;
     private Caractere bloco;
     private String blocoAparência;
     private boolean blocoBloqueio;
 	
-    private static int posJogador_x, posJogador_y;
-    private static int posJogadorAnterior_x, posJogadorAnterior_y;
+    private static int posJogador_x, posJogador_y, 
+	posInicialJogador_x, posInicialJogador_y,
+	posJogadorAnterior_x, posJogadorAnterior_y;
     
-    public Banco(){
-        posJogador_x = 3;
-        posJogador_y = 9;
+    public Banco(Hashtable tipoEventos, int posJogador_x, int posJogador_y){
+        this.posJogador_x = posJogador_x;
+        this.posJogador_y = posJogador_y;
+		this.posInicialJogador_x = posJogador_x;
+        this.posInicialJogador_y = posJogador_y;
+		this.tipoEventos = tipoEventos;
+		
         posJogadorAnterior_x = 0;
         posJogadorAnterior_y = 0;
         
         caracteres = new ArrayList<Caractere>();
-        
-        Caractere hastagBloco = new Caractere("#", true, false);
-        caracteres.add(hastagBloco);
-        
-        Caractere chaveBloco_1 = new Caractere("]", true, false);
-        caracteres.add(chaveBloco_1);
-        
-        Caractere chaveBloco_2 = new Caractere("[", true, false);
-        caracteres.add(chaveBloco_2);
-        
-        Caractere águaBloco = new Caractere("~", true, false);
-        caracteres.add(águaBloco);
-		
-		Caractere báuBloco = new Caractere("b", false, true);
-        caracteres.add(báuBloco);
-		
-		Caractere lojaBloco = new Caractere("$", false, true);
-        caracteres.add(lojaBloco);
-		
-		Caractere tavernaBloco = new Caractere("T", false, true);
-        caracteres.add(tavernaBloco);
-		
-		Caractere placaBloco = new Caractere("*", false, true);
-        caracteres.add(placaBloco);
-		
-		Caractere transiçãoBloco = new Caractere("_", false, true);
-        caracteres.add(transiçãoBloco);
+		criarBlocos();		
     }
     
+	private void criarBlocos(){
+		bloco = new Caractere("#", true, false); 
+        caracteres.add(bloco);
+        
+        bloco = new Caractere("]", true, false);
+        caracteres.add(bloco);
+        
+        bloco = new Caractere("[", true, false);
+        caracteres.add(bloco);
+        
+        bloco = new Caractere("~", true, false);
+        caracteres.add(bloco);
+		
+		blocoAparência = tipoEventos.get("Báu").toString();
+		bloco = new Caractere(blocoAparência, false, true);
+        caracteres.add(bloco);
+		
+		blocoAparência = tipoEventos.get("Loja").toString();
+		bloco = new Caractere(blocoAparência, false, true);
+        caracteres.add(bloco);
+		
+		blocoAparência = tipoEventos.get("Taverna").toString();
+		bloco = new Caractere(blocoAparência, false, true);
+        caracteres.add(bloco);
+		
+		blocoAparência = tipoEventos.get("Transição").toString();
+		bloco = new Caractere(blocoAparência, false, true);
+        caracteres.add(bloco);
+		
+		blocoAparência = tipoEventos.get("Placa").toString();
+		bloco = new Caractere(blocoAparência, false, true);
+        caracteres.add(bloco);
+	}
+	
 	public static void resetaInformações(){
-		posJogador_x = 3;
-        posJogador_y = 9;
+		posJogador_x = posInicialJogador_x;
+        posJogador_y = posInicialJogador_y;
 	}
 	
     public static int getJogador_x(){
