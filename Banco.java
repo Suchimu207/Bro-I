@@ -79,7 +79,7 @@ public final class Banco{
         caracteres.add(bloco);
 	}
 	
-	public static void resetaInformações(){
+	public static void resetaInformaçõesJogador(){
 		posJogador_x = posInicialJogador_x;
         posJogador_y = posInicialJogador_y;
 	}

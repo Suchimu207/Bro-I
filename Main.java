@@ -9,7 +9,7 @@ import java.util.Hashtable;
 public class Main{
     public static void main(String[] args){
 		String título = "Bró I";
-		String nomeVersão = "0.3";
+		String nomeVersão = "0.31";
 		String[] opçõesTítulo = {"1. Novo Jogo", "2. Continuar", "3. Sair"};
 		
 		Hashtable<String, String> tipoEventos = new Hashtable<String, String>();
@@ -19,6 +19,7 @@ public class Main{
 		tipoEventos.put("Transição","_");
 		tipoEventos.put("Placa","*");
 	
+		String mapaInicial = "Teste";
 		int posJogador_x = 3;
 		int posJogador_y = 9;
 		
@@ -26,6 +27,6 @@ public class Main{
 		Visual visualg = new Visual(tipoEventos, nomeVersão, título, opçõesTítulo); 
 	
 		Scanner teclado = new Scanner(System.in);
-        Controle mestre = new Controle(visualg, arquivista, teclado, tipoEventos);
+        Controle mestre = new Controle(visualg, arquivista, teclado, tipoEventos, mapaInicial);
     }
 }

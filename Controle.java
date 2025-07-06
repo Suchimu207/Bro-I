@@ -20,14 +20,15 @@ public final class Controle{
     private int entrada, posJogador_x, posJogador_y, mapaTamanhoX, mapaTamanhoY, idContador;
 	
 	private int posEvento_x, posEvento_y, eventoAtualId;
-    private String estadoJogo, mapaAtual, blocoAtual, direçãoJogador, tipoEventoAtual, textoErro, os, blocoVerificado;
+    private String estadoJogo, mapaAtual, mapaInicial, blocoAtual, direçãoJogador, tipoEventoAtual, textoErro, os, blocoVerificado;
 	private boolean mapaEventos_0;
 	
-    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Hashtable tipoEventos){
+    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Hashtable tipoEventos, String mapaInicial){
 		this.visualg = visualg;
         this.arquivista = arquivista;
         this.teclado = teclado;
 		this.tipoEventos = tipoEventos;
+		this.mapaInicial = mapaInicial;
 		
         caracteres = new ArrayList<String>();
 		ocorrências = new ArrayList<Eventos>();
@@ -58,6 +59,8 @@ public final class Controle{
             }else if (estadoJogo == "Mapa"){
 				posJogador_x = Banco.getJogador_x();
 				posJogador_y = Banco.getJogador_y();
+				
+				visualg.desenhaNomeMapa(mapaAtual);
 			    visualg.desenhaMapa(mapaAtual, posJogador_x, posJogador_y);
                 visualg.desenhaMenu("Comandos", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEventoAtual);
             }
@@ -147,14 +150,22 @@ public final class Controle{
       //===
     }
 	
+	private void resetaInformaçõesJogatina(){
+		isEventoAtivo = false;
+		tipoEventoAtual = VAZIO;
+		eventoAtualId = -1;
+		estadoJogo = "Mapa";
+		mapaAtual = mapaInicial;
+	}
+	
     private void açãoUm(){
         if (estadoJogo == "Mapa"){
 			direçãoJogador="Esquerda"; tratarMovimento();
 		}else if (estadoJogo == "Título"){
-			Banco.resetaInformações();
-            estadoJogo = "Mapa";
-			mapaAtual = "Teste";
-		}			
+			resetaInformaçõesJogatina();
+			Banco.resetaInformaçõesJogador();
+			if (debug == false) visualg.desenhaCarregamento();
+		}
     }
     
     private void açãoDois(){
@@ -162,7 +173,7 @@ public final class Controle{
 			direçãoJogador="Direita"; tratarMovimento();
 		}else if (estadoJogo == "Título"){
 			estadoJogo = "Mapa";
-			mapaAtual = "Teste";
+			mapaAtual = mapaInicial;
 		}
     }
     
