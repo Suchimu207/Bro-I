@@ -5,36 +5,55 @@ import java.util.ArrayList;
 import java.io.IOException;
 
 public final class Controle{
+	private enum EstadosJogo{
+		TITULO("Título"),
+		MAPA("Mapa");
+		
+		private String estadoJogo;
+		
+		EstadosJogo(String estadoJogo){
+			this.estadoJogo = estadoJogo;
+		}
+		
+		public String getEstadoJogo(){
+			return estadoJogo;
+		}
+	}
+	
 	private Visual visualg;
     private Banco arquivista;
 	private Scanner teclado;
 	private Eventos evento;
 	private Hashtable tipoEventos;
+	private EstadosJogo estadoAtualJogo;
 
 	private ArrayList<String> caracteres;
     private ArrayList<Eventos> ocorrências;
+	private ArrayList<String> mapas;
 	
-	private final String VAZIO = "Vazio";
+	private final String VAZIO;
 	
     private boolean rodarJogo, debug, bloqueioBloco, bloqueioLimite, isEventoAtivo;
     private int entrada, posJogador_x, posJogador_y, mapaTamanhoX, mapaTamanhoY, idContador;
 	
 	private int posEvento_x, posEvento_y, eventoAtualId;
-    private String estadoJogo, mapaAtual, mapaInicial, blocoAtual, direçãoJogador, tipoEventoAtual, textoErro, os, blocoVerificado;
-	private boolean mapaEventos_0;
+    private String mapaAtual, mapaInicial, blocoAtual, direçãoJogador, tipoEventoAtual, textoErro, os, blocoVerificado;
+	private boolean mapaEventos;
 	
-    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Hashtable tipoEventos, String mapaInicial){
+    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Hashtable tipoEventos, String mapaInicial, ArrayList<String> mapas, String VAZIO){
 		this.visualg = visualg;
         this.arquivista = arquivista;
         this.teclado = teclado;
 		this.tipoEventos = tipoEventos;
 		this.mapaInicial = mapaInicial;
+		this.mapas = mapas;
+		this.VAZIO = VAZIO;
 		
         caracteres = new ArrayList<String>();
 		ocorrências = new ArrayList<Eventos>();
 		
 		os = System.getProperty("os.name").toLowerCase();
-        estadoJogo = "Título";
+        estadoAtualJogo = estadoAtualJogo.TITULO;
 		mapaAtual = VAZIO;
 		tipoEventoAtual = VAZIO;
 		textoErro = VAZIO;
@@ -44,7 +63,7 @@ public final class Controle{
         debug = true;
 		bloqueioBloco = false;
 		bloqueioLimite = false;
-		mapaEventos_0 = false;
+		mapaEventos = false;
 		isEventoAtivo = false;
 		
 		iniciarJogo();
@@ -54,15 +73,15 @@ public final class Controle{
         do{
 			visualg.limpaTela();
 			if (debug == true) mostrarDebug();
-            if (estadoJogo == "Título"){
-				visualg.desenhaMenu("Título", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEventoAtual);
-            }else if (estadoJogo == "Mapa"){
+            if (estadoAtualJogo.equals(estadoAtualJogo.TITULO)){
+				visualg.desenhaTítulo();
+            }else if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
 				posJogador_x = Banco.getJogador_x();
 				posJogador_y = Banco.getJogador_y();
 				
 				visualg.desenhaNomeMapa(mapaAtual);
 			    visualg.desenhaMapa(mapaAtual, posJogador_x, posJogador_y);
-                visualg.desenhaMenu("Comandos", isEventoAtivo, mapaAtual, posEvento_x, posEvento_y, tipoEventoAtual);
+                visualg.desenhaComandos(isEventoAtivo, mapaAtual, posJogador_x, posJogador_y, tipoEventoAtual, eventoAtualId);
             }
 			receberComandos();
         }while(rodarJogo == true);
@@ -116,7 +135,7 @@ public final class Controle{
         try{
             moverJogador();
         }catch(ArrayIndexOutOfBoundsException e){
-            if (estadoJogo == "Mapa"){
+            if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
 				visualg.desenhaErro("Movimento", textoErro);
 				bloqueioLimite=true;
 			}
@@ -136,12 +155,12 @@ public final class Controle{
     }
 	
 	private void reiniciarJogo(){
-        try {
+        try{
             if (os.contains("win")){
                 new ProcessBuilder("cmd", "/c", "java Main.java").inheritIO().start().waitFor();
 				System.exit(0);
             }else if (os.contains("linux") || os.contains("unix")){
-                new ProcessBuilder("java Main.java").inheritIO().start().waitFor();
+                new ProcessBuilder("java Main").inheritIO().start().waitFor();
             }
         }catch (Exception e){
 				textoErro = e.getMessage();
@@ -154,14 +173,16 @@ public final class Controle{
 		isEventoAtivo = false;
 		tipoEventoAtual = VAZIO;
 		eventoAtualId = -1;
-		estadoJogo = "Mapa";
+		estadoAtualJogo = estadoAtualJogo.MAPA;
 		mapaAtual = mapaInicial;
+		ocorrências.clear();
+		mapaEventos = false;
 	}
 	
     private void açãoUm(){
-        if (estadoJogo == "Mapa"){
+        if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
 			direçãoJogador="Esquerda"; tratarMovimento();
-		}else if (estadoJogo == "Título"){
+		}else if (estadoAtualJogo.equals(estadoAtualJogo.TITULO)){
 			resetaInformaçõesJogatina();
 			Banco.resetaInformaçõesJogador();
 			if (debug == false) visualg.desenhaCarregamento();
@@ -169,24 +190,24 @@ public final class Controle{
     }
     
     private void açãoDois(){
-        if(estadoJogo == "Mapa"){
+        if(estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
 			direçãoJogador="Direita"; tratarMovimento();
-		}else if (estadoJogo == "Título"){
-			estadoJogo = "Mapa";
+		}else if (estadoAtualJogo.equals(estadoAtualJogo.TITULO)){
+			estadoAtualJogo = estadoAtualJogo.MAPA;
 			mapaAtual = mapaInicial;
 		}
     }
     
     private void açãoTrês(){
-        if (estadoJogo == "Título"){
+        if (estadoAtualJogo.equals(estadoAtualJogo.TITULO)){
             visualg.desenhaSair();
             rodarJogo = false;
-			estadoJogo = VAZIO;
-        }else if (estadoJogo == "Mapa") direçãoJogador="Cima"; tratarMovimento();
+			estadoAtualJogo = null;
+        }else if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)) direçãoJogador="Cima"; tratarMovimento();
     }
     
     private void açãoQuatro(){
-        if (estadoJogo == "Mapa"){
+        if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
 			direçãoJogador="Baixo"; tratarMovimento();
 		}
     }
@@ -196,15 +217,14 @@ public final class Controle{
     }
     
 	private void açãoSeis(){
-		if (estadoJogo == "Mapa"){
-			estadoJogo = "Título";
+		if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
+			estadoAtualJogo = estadoAtualJogo.TITULO;
 			mapaAtual = VAZIO;
 		}
 	}
 	
-	
     private void açãoSete(){
-        if (estadoJogo == "Mapa" && isEventoAtivo == true){
+        if (estadoAtualJogo.equals(estadoAtualJogo.MAPA) && isEventoAtivo == true){
 			ativarEvento();
 		}
     }
@@ -213,9 +233,9 @@ public final class Controle{
 		mapaTamanhoX = visualg.getQuantidadeLinhasX()-1;
 		mapaTamanhoY = visualg.getQuantidadeColunasY(); //Número exato.
 		
-        if(mapaEventos_0 == false && "Teste".equals(mapaAtual)){   
+        if(mapaEventos == false && !VAZIO.equals(mapaAtual)){   
             montarEventos();
-            mapaEventos_0 = true;
+            mapaEventos = true;
         }
 	  //===
     }
@@ -240,6 +260,8 @@ public final class Controle{
 	
 	private void verificarEvento(){
 		isEventoAtivo = false;
+		eventoAtualId = -1;
+		tipoEventoAtual = VAZIO;
 		
 		for (Eventos evento : ocorrências){
 			if (posJogador_x == evento.getPos_x() && posJogador_y == evento.getPos_y()){
@@ -299,9 +321,9 @@ public final class Controle{
 		System.out.println("isEventoAtivo: "+isEventoAtivo);
 		System.out.println("TipoEventoAtual: "+tipoEventoAtual+"\nEventoAtualId: "+eventoAtualId);
 		System.out.println("BloqueioBloco: "+bloqueioBloco+" | BloqueioLimite: "+bloqueioLimite);
-		System.out.println("EstadoJogo: "+estadoJogo+" | MapaAtual: "+mapaAtual);
+		System.out.println("EstadoJogo: "+estadoAtualJogo.getEstadoJogo()+" | MapaAtual: "+mapaAtual);
 		System.out.println("Ocorrências: "+ocorrências.size());
-		System.out.println("MapaEventos_0: "+mapaEventos_0);
+		System.out.println("MapaEventos: "+mapaEventos);
 		visualg.desenhaBarra();
     }
     

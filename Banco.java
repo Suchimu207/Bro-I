@@ -58,6 +58,9 @@ public final class Banco{
         bloco = new Caractere("~", true, false);
         caracteres.add(bloco);
 		
+		bloco = new Caractere("&", true, false);
+        caracteres.add(bloco);
+		
 		blocoAparência = tipoEventos.get("Báu").toString();
 		bloco = new Caractere(blocoAparência, false, true);
         caracteres.add(bloco);

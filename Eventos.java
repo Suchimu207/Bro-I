@@ -1,6 +1,8 @@
 import java.util.Hashtable;
 import java.util.ArrayList;
 
+//Responsável pelos eventos chamados pelo jogador.
+
 public class Eventos{
 	private static Hashtable tipoDosEventos;
 	
@@ -66,6 +68,8 @@ public class Eventos{
 				tipoEvento = "Taverna";
 			}else if(blocoAtual.equals("_")){
 				tipoEvento = "Transição";
+			}else if (blocoAtual.equals("H")){
+				tipoEvento = "Casa";
 			}
 		}
         return new Eventos(id, tipoEvento, linha, coluna, dadosEvento);
