@@ -242,10 +242,11 @@ public final class Controle{
 	
 	private void montarEventos(){
 		idContador = 0;
-		for (int linha = 0; linha < mapaTamanhoX; linha++){
+		
+		for (int linha = 0; linha < mapaTamanhoX+1; linha++){
             for (int coluna = 0; coluna < mapaTamanhoY+1; coluna++){
 				blocoAtual = visualg.getBlocoAtual(linha, coluna);
-				evento = Eventos.criarEvento(blocoAtual, 0, 0, 0, tipoEventos);	
+				evento = Eventos.criarEvento(blocoAtual, linha, coluna, -1, tipoEventos);	
 				for (int i = 0; i <= tipoEventos.size(); i++){
 					if(tipoEventos.containsValue(blocoAtual)){
 						evento = Eventos.criarEvento(blocoAtual, linha, coluna, ++idContador, tipoEventos);
@@ -254,7 +255,7 @@ public final class Controle{
 					}
 				}
             }
-		}
+		}		
 	  //===
 	}
 	
@@ -264,7 +265,7 @@ public final class Controle{
 		tipoEventoAtual = VAZIO;
 		
 		for (Eventos evento : ocorrências){
-			if (posJogador_x == evento.getPos_x() && posJogador_y == evento.getPos_y()){
+			if (posJogador_x == evento.getPosEvento_x() && posJogador_y == evento.getPosEvento_y()){
             tipoEventoAtual = evento.getTipo();
             eventoAtualId = evento.getId();
             isEventoAtivo = true;
@@ -278,35 +279,34 @@ public final class Controle{
             if (evento.getId() == eventoAtualId){
                 switch (evento.getTipo()){
                     case "Báu":
-                        abrirBáu(evento);
                         break;
                     case "Placa":
-                        lerPlaca(evento);
                         break;
                     case "Loja":
 						break;
 					case "Taverna":
 						break;
+					case "Transição":
+						//Atualiza a posição do jogador.
+						Eventos.chamarTransição(mapaAtual, eventoAtualId, posJogador_x, posJogador_y);
+						posJogador_x = Eventos.getPosJogador_x();
+						posJogador_y = Eventos.getPosJogador_y();
+						Banco.setJogador_x(posJogador_x);
+						Banco.setJogador_y(posJogador_y);
+						
+						mapaAtual = Eventos.getMapaNome();
+						ocorrências.clear();
+						isEventoAtivo = false;
+						tipoEventoAtual = VAZIO;
+						eventoAtualId = -1;
+						mapaEventos = false;
+						break;
                 }
                 break;
             }
         }
-        isEventoAtivo = false;
-        tipoEventoAtual = VAZIO;
 	  //===
 	}
-	
-	private void abrirBáu(Eventos evento) {
-        String textO = (String) evento.getDados();
-        System.out.println(textO);
-        //Remover o evento do mapa após interação.
-        ocorrências.remove(evento);
-    }
-	
-	private void lerPlaca(Eventos evento) {
-        String texto = (String) evento.getDados();
-        System.out.println(texto);
-    }
 	
     private void ativarDebug(){
         if (debug == true){

@@ -5,57 +5,58 @@ import java.util.ArrayList;
 
 public class Eventos{
 	private static Hashtable tipoDosEventos;
+	private static String tipoEvento;
+	private static ArrayList<String> mapas;
+	private static String mapaNome;
+	private static int eventoAtualId, posJogador_x, posJogador_y;
 	
 	private int id;
 	private String tipo;
-	private static String tipoEvento;
-
-    private int pos_x, pos_y;
+    private int posEvento_x, posEvento_y;
 	
-    private Object dados; 
-	private static Object dadosEvento;
-	
-	public Eventos(int id, String tipo, int pos_x, int pos_y, Object dados) {
+	public Eventos(int id, String tipo, int posEvento_x, int posEvento_y){
         this.id = id;
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
+        this.posEvento_x = posEvento_x;
+        this.posEvento_y = posEvento_y;
 		this.tipo = tipo;
-        this.dados = dados;
     }
 	
 	public int getId(){
 		return this.id;
 	}
 	
-	public int getPos_x(){
-		return this.pos_x;
+	public int getPosEvento_x(){
+		return this.posEvento_x;
 	}
 	
-	public int getPos_y(){
-		return this.pos_y;
+	public int getPosEvento_y(){
+		return this.posEvento_y;
 	}
 		
 	public String getTipo(){
 		return this.tipo;
 	}
 	
-	public Object getDados(){
-		return this.dados;
+	public static void setMapas(ArrayList<String> mapasDoJogo){
+		mapas = mapasDoJogo;
 	}
 	
-	public void setTipo(String tipo){
-		this.tipo = tipo;
+	public static String getMapaNome(){	
+		return mapaNome;
 	}
 	
-	public void setId(int id){
-		this.id = id;
+	public static int getPosJogador_x(){
+		return posJogador_x;
+	}
+	
+	public static int getPosJogador_y(){
+		return posJogador_y;
 	}
 	
 	public static Eventos criarEvento(String blocoAtual, int linha, int coluna, int id, Hashtable tipoEventos){
 		tipoDosEventos = tipoEventos;
 		tipoEvento = "";
-		dadosEvento = "Este é um evento.";
-      
+		
 		//TODO: Melhorar este troço abaixo.
 		if (tipoDosEventos.containsValue(blocoAtual)){
 			if(blocoAtual.equals("b")){
@@ -72,7 +73,65 @@ public class Eventos{
 				tipoEvento = "Casa";
 			}
 		}
-        return new Eventos(id, tipoEvento, linha, coluna, dadosEvento);
+        return new Eventos(id, tipoEvento, linha, coluna);
+	}
+	
+	public static void chamarTransição(String nomeDoMapa, int atualIdEvento, int posiçãoJogador_x, int posiçãoJogador_y){
+			mapaNome = nomeDoMapa;
+			eventoAtualId = atualIdEvento;
+			posJogador_x = posiçãoJogador_x;
+			posJogador_y = posiçãoJogador_y;
+			
+			//Vilarejo Bosqueverde - Centro
+			if (mapaNome.equals(mapas.get(1))){
+				if (eventoAtualId == 1){
+					mapaNome = mapas.get(2);
+					posJogador_x = 12;
+					posJogador_y = 13;
+				}
+				if (eventoAtualId == 2){
+					mapaNome = mapas.get(2);
+					posJogador_x = 12;
+					posJogador_y = 14;
+				}
+				if (eventoAtualId == 6){
+					mapaNome = mapas.get(3);
+					posJogador_x = 5;
+					posJogador_y = 1;
+				}
+				if (eventoAtualId == 8){
+					mapaNome = mapas.get(3);
+					posJogador_x = 6;
+					posJogador_y = 1;
+				}
+			}
+			//Vilarejo Bosqueverde - Plantação
+			if (mapaNome.equals(mapas.get(2))){
+				if (eventoAtualId == 4){
+					mapaNome = mapas.get(1);
+					posJogador_x = 1;
+					posJogador_y = 13;
+				}
+				if (eventoAtualId == 5){
+					mapaNome = mapas.get(1);
+					posJogador_x = 1;
+					posJogador_y = 14;
+				}
+			}
+			//>>Vilarejo Bosqueverde - Arredores
+			if (mapaNome.equals(mapas.get(3))){
+				if (eventoAtualId == 2){
+					mapaNome = mapas.get(1);
+					posJogador_x = 5;
+					posJogador_y = 27;
+				}
+				if (eventoAtualId == 3){
+					mapaNome = mapas.get(1);
+					posJogador_x = 6;
+					posJogador_y = 27;
+				}
+			}			
+	  //===
 	}
 	
   //===

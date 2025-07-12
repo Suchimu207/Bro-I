@@ -70,7 +70,7 @@ public final class Visual{
 		System.out.println("");
      	
 		for (int i = 0; i <= 66; i++){
-			System.out.print(FundoBranco+"[]"+FundoPadrão);
+			System.out.print(FundoBranco+""+BRANCO+"."+FundoPadrão);
 			espera(100);
 		}
 		
@@ -128,7 +128,7 @@ public final class Visual{
 	
 	public void desenhaBarra(){
         System.out.print(CINZA+"============================================"+RESETA+"\n");
-      }
+    }
 
     public void limpaTela(){
         try {
@@ -152,7 +152,7 @@ public final class Visual{
     }
     
 	private void desenhaCaractere(int pos_x, int pos_y){
-        for (int linha = 0; linha < mapaAtual.length; linha++) {
+		for (int linha = 0; linha < mapaAtual.length; linha++){
 			for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
 				for (int i = 0; i <= tipoEventos.size(); i++){
 					if(tipoEventos.containsValue(mapaAtual[linha][coluna])){
@@ -175,7 +175,7 @@ public final class Visual{
 				}else if (eventoAqui == true){
 					System.out.print(AMARELO+mapaAtual[linha][coluna]+RESETA);
 				}else System.out.print(CINZA+mapaAtual[linha][coluna]+RESETA);
-					quantidadeColunasY = coluna;
+				quantidadeColunasY = coluna;
             }
             System.out.println(""); //Pula para a próxima linha.
         }
@@ -201,16 +201,16 @@ public final class Visual{
 		System.out.println("");
 		desenhaBarra();
 		for (int i = 0; i <= opçõesTítulo.length-1; i++){
-			System.out.println(opçõesTítulo[i]);
+			System.out.println(BRANCO+opçõesTítulo[i]+RESETA);
 		}
 		desenhaBarra();
     }
 
     public void desenhaComandos(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento, int eventoAtualId){		
 		System.out.println(CINZA+"============================="+RESETA);
-        System.out.println("1. Esquerda       2. Direita");
-        System.out.println("3. Cima           4. Baixo  ");
-        System.out.println("5. Inventário     6. Título ");
+        System.out.println(BRANCO+"1. Esquerda       2. Direita"+RESETA);
+        System.out.println(BRANCO+"3. Cima           4. Baixo  "+RESETA);
+        System.out.println(BRANCO+"5. Inventário     6. Título "+RESETA);
 		if(eventoAtivo) desenhaNomeEvento(eventoAtivo, mapaNome, pos_x, pos_y, tipoEvento, eventoAtualId);
         System.out.println(CINZA+"============================="+RESETA);
     }
@@ -239,6 +239,18 @@ public final class Visual{
 				}
 				if (eventoAtualId == 9 && tipoEvento.equals("Casa")){
 					System.out.println("7. "+AMARELO+"Casa da Elisabeth Rehem"+RESETA);
+				}
+			}
+			//Vilarejo Bosqueverde - Plantação
+			if (mapaNome.equals(mapas.get(2))){
+				if (eventoAtualId == 4 && tipoEvento.equals("Transição") || eventoAtualId == 5 && tipoEvento.equals("Transição")){
+					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
+				}
+			}
+			//>>Vilarejo Bosqueverde - Arredores
+			if (mapaNome.equals(mapas.get(3))){
+				if (eventoAtualId <= 3 && tipoEvento.equals("Transição") && eventoAtualId != -1 && eventoAtualId != 1){
+					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
 				}
 			}
 			
