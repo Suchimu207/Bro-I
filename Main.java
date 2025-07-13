@@ -7,11 +7,14 @@ import java.util.ArrayList;
 * Bró I
 */
 
+//TODO: Aprimorar modo debug.
+
 public class Main{
     public static void main(String[] args){
 		String título = "Bró I";
-		String nomeVersão = "0.33";
+		String nomeVersão = "0.34";
 		String[] opçõesTítulo = {"1. Novo Jogo", "2. Continuar", "3. Sair"};
+		String os = System.getProperty("os.name").toLowerCase();
 		final String VAZIO = "Vazio";
 		
 		Hashtable<String, String> tipoEventos = new Hashtable<String, String>();
@@ -36,7 +39,7 @@ public class Main{
 		
 		Scanner teclado = new Scanner(System.in);
 		Banco arquivista = new Banco(tipoEventos, posJogador_x, posJogador_y);
-		Visual visualg = new Visual(tipoEventos, nomeVersão, título, opçõesTítulo, mapas, VAZIO);
-		Controle mestre = new Controle(visualg, arquivista, teclado, tipoEventos, mapaInicial, mapas, VAZIO);
+		Visual visualg = new Visual(tipoEventos, nomeVersão, título, opçõesTítulo, mapas, VAZIO, os);
+		Controle mestre = new Controle(visualg, arquivista, teclado, tipoEventos, mapaInicial, mapas, VAZIO, os);
     }
 }

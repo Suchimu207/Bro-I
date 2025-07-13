@@ -34,29 +34,28 @@ public final class Controle{
 	private final String VAZIO;
 	
     private boolean rodarJogo, debug, bloqueioBloco, bloqueioLimite, isEventoAtivo;
-    private int entrada, posJogador_x, posJogador_y, mapaTamanhoX, mapaTamanhoY, idContador;
-	
-	private int posEvento_x, posEvento_y, eventoAtualId;
-    private String mapaAtual, mapaInicial, blocoAtual, direçãoJogador, tipoEventoAtual, textoErro, os, blocoVerificado;
+    private int entrada, posJogador_x, posJogador_y, mapaTamanhoX, mapaTamanhoY, idContador, 
+	posEvento_x, posEvento_y, eventoAtualId;
+    
+	private String mapaAtual, mapaInicial, blocoAtual, direçãoJogador, tipoEventoAtual, os, blocoVerificado, textoPlaca;
 	private boolean mapaEventos;
 	
-    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Hashtable tipoEventos, String mapaInicial, ArrayList<String> mapas, String VAZIO){
+    public Controle(Visual visualg, Banco arquivista, Scanner teclado, Hashtable tipoEventos, String mapaInicial, ArrayList<String> mapas, String VAZIO, String os){
 		this.visualg = visualg;
         this.arquivista = arquivista;
         this.teclado = teclado;
 		this.tipoEventos = tipoEventos;
 		this.mapaInicial = mapaInicial;
 		this.mapas = mapas;
+		this.os = os;
 		this.VAZIO = VAZIO;
 		
         caracteres = new ArrayList<String>();
 		ocorrências = new ArrayList<Eventos>();
 		
-		os = System.getProperty("os.name").toLowerCase();
         estadoAtualJogo = estadoAtualJogo.TITULO;
 		mapaAtual = VAZIO;
 		tipoEventoAtual = VAZIO;
-		textoErro = VAZIO;
 		eventoAtualId = -1;
 	
         rodarJogo = true;
@@ -115,7 +114,7 @@ public final class Controle{
             ativarDebug();
             break;
 			case 0:
-			reiniciarJogo();
+			if (debug) reiniciarJogo();
 			break;
             }
     }
@@ -124,7 +123,7 @@ public final class Controle{
 		try{
             visualg.desenhaSeta(); entrada = teclado.nextInt();
         }catch(InputMismatchException e){
-            visualg.desenhaErro("Entrada", textoErro);
+            visualg.desenhaErro("Entrada", e.getMessage());
             entrada = -1;
         }finally{
             teclado.nextLine();
@@ -136,7 +135,7 @@ public final class Controle{
             moverJogador();
         }catch(ArrayIndexOutOfBoundsException e){
             if (estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
-				visualg.desenhaErro("Movimento", textoErro);
+				visualg.desenhaErro("Movimento", e.getMessage());
 				bloqueioLimite=true;
 			}
         }finally{
@@ -163,8 +162,7 @@ public final class Controle{
                 new ProcessBuilder("java Main").inheritIO().start().waitFor();
             }
         }catch (Exception e){
-				textoErro = e.getMessage();
-				visualg.desenhaErro("Reiniciar", textoErro);
+				visualg.desenhaErro("Reiniciar", e.getMessage());
         }
       //===
     }
@@ -281,6 +279,9 @@ public final class Controle{
                     case "Báu":
                         break;
                     case "Placa":
+						textoPlaca = Eventos.chamarPlaca(mapaAtual, eventoAtualId);
+						visualg.desenhaPlaca(textoPlaca);
+						visualg.desenhaSeta(); teclado.nextLine();
                         break;
                     case "Loja":
 						break;

@@ -16,27 +16,28 @@ public final class Visual{
     private String os, título, texto, quadro, nomeVersão, nomeDoMapa;
     private int saída, quantidadeLinhasX, quantidadeColunasY;
 	
-    private final String VERDE, VERDE_MUSGO, BRANCO, VERMELHO, VERMELHO_FOGO, LARANJA, AZUL, ROXO, AMARELO, ROSA,
+    private final String VERDE, VERDE_MUSGO, BRANCO, BRANCO_ESCURO, VERMELHO, VERMELHO_FOGO, LARANJA, AZUL, ROXO, AMARELO, ROSA,
 	PRETO, CINZA, RESETA,
 	FundoVerde, FundoBranco, FundoVermelho, FundoPadrão;
 	private final String VAZIO;
 
 	private boolean eventoAqui;
     
-    public Visual(Hashtable tipoEventos, String nomeVersão, String título, String[] opçõesTítulo, ArrayList<String> mapas, String VAZIO){
+    public Visual(Hashtable tipoEventos, String nomeVersão, String título, String[] opçõesTítulo, ArrayList<String> mapas, String VAZIO, String os){
 		this.tipoEventos = tipoEventos;
 		this.nomeVersão = nomeVersão;
 		this.título = título;
 		this.opçõesTítulo = opçõesTítulo;
 		this.mapas = mapas;
+		this.os = os;
 		this.VAZIO = VAZIO;
 		
-        os = System.getProperty("os.name").toLowerCase();
 		nomeDoMapa = "";
         
         VERDE = "\033[92m";
 		VERDE_MUSGO = "\033[32m";
-        BRANCO = "\033[37m";
+        BRANCO = "\u001B[97m";
+		BRANCO_ESCURO = "\u001B[37m";
 		VERMELHO = "\033[31m";
 		VERMELHO_FOGO = "\033[91m";
         LARANJA = "\033[33m";
@@ -58,12 +59,38 @@ public final class Visual{
             try{
             new ProcessBuilder("cmd", "/c", "title " + título).inheritIO().start();
         }catch (Exception e){
-            System.out.println(VERMELHO+"Ocorreu um erro ao definir título: "+e.getMessage()+"."+RESETA); 
-            espera(1500);
+			desenhaErro("Título", e.getMessage());
             }
         }
     }
-    	
+	
+	public void desenhaPlaca(String textoPlaca){
+		System.out.println(BRANCO+">>Ela diz:"+RESETA);
+		System.out.println("");
+		
+		System.out.println(BRANCO+textoPlaca+RESETA);
+		System.out.println("");
+		System.out.println("");
+		
+		System.out.println(BRANCO+"Insira qualquer valor para voltar."+RESETA);
+	}
+	
+	public void desenhaTítulo(){
+        System.out.println("");
+        desenhaArte("Título");
+        System.out.println(AMARELO+quadro+RESETA);
+        System.out.println("");
+        System.out.print(CINZA+"Autor: "+VERDE_MUSGO+"Carlos S. Rehem"+RESETA+"\n");
+		System.out.print(CINZA+"Versão: "+""+BRANCO+nomeVersão+RESETA+"\n");
+		espera(100);
+		System.out.println("");
+		desenhaBarra();
+		for (int i = 0; i <= opçõesTítulo.length-1; i++){
+			System.out.println(BRANCO+opçõesTítulo[i]+RESETA);
+		}
+		desenhaBarra();
+    }
+
 	public void desenhaCarregamento(){
 		limpaTela();
 		System.out.print(BRANCO+">>Carregando...\n"+RESETA);
@@ -77,6 +104,27 @@ public final class Visual{
 		System.out.println(""); System.out.println("");
 		System.out.print(VERDE+"Authorise!!!"+RESETA);
 		espera(2900); //TODO: Exato tempo do efeito sonoro de mesmo nome.
+	}
+	
+	public void desenhaSair(){
+        System.out.print(BRANCO+"Fechando");
+        espera(1000); System.out.print(BRANCO+".");
+        espera(870); System.out.print(BRANCO+".");
+        espera(780); System.out.print(BRANCO+".");
+        espera(100); limpaTela();
+    }
+	
+	public void desenhaNomeMapa(String mapaAtual){
+		System.out.print(CINZA+"============================================"+RESETA+"\n");
+		if (mapas != null){
+			if (mapas.get(0).equals(mapaAtual)) nomeDoMapa = "Teste";
+			if (mapas.get(1).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Centro";
+			if (mapas.get(2).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Plantação";
+			if (mapas.get(3).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Arredores";
+		}else nomeDoMapa = VAZIO;
+		
+		System.out.println(AMARELO+">>"+nomeDoMapa+RESETA);
+		desenhaBarra();
 	}
 	
     public void desenhaMapa(String mapa, int pos_x, int pos_y){
@@ -93,30 +141,36 @@ public final class Visual{
 			System.out.println("");
 			desenhaCaractere(pos_x, pos_y);
         }catch(IOException e){
-            System.out.println(VERMELHO+"Falha ao desenhar mapa: "+e.getMessage()+"."+RESETA);
+			desenhaErro("Mapa", e.getMessage());
         }
     }
 	
-	public void desenhaNomeMapa(String mapaAtual){
-		System.out.print(CINZA+"============================================"+RESETA+"\n");
-		if (mapas != null){
-			if (mapas.get(0).equals(mapaAtual)) nomeDoMapa = "Teste";
-			if (mapas.get(1).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Centro";
-			if (mapas.get(2).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Plantação";
-			if (mapas.get(3).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Arredores";
-		}else nomeDoMapa = VAZIO;
-		
-		System.out.println(AMARELO+">>"+nomeDoMapa+RESETA);
-		desenhaBarra();
-	}
-    
+	public void desenhaComandos(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento, int eventoAtualId){		
+		System.out.println(CINZA+"============================="+RESETA);
+        System.out.println(BRANCO+"1. Esquerda       2. Direita"+RESETA);
+        System.out.println(BRANCO+"3. Cima           4. Baixo  "+RESETA);
+        System.out.println(BRANCO+"5. Inventário     6. Título "+RESETA);
+		if(eventoAtivo) desenhaNomeEvento(eventoAtivo, mapaNome, pos_x, pos_y, tipoEvento, eventoAtualId);
+        System.out.println(CINZA+"============================="+RESETA);
+    }
+	
     public void desenhaErro(String tipoErro, String textoErro){
         if (tipoErro == "Entrada"){
             System.out.print("\n"+VERMELHO+"Insira uma entrada válida."+RESETA);
         }else if (tipoErro == "Movimento"){
             System.out.print(VERMELHO+"Movimento inválido."+RESETA);
         }else if (tipoErro == "Reiniciar"){
-			System.out.print("\n"+VERMELHO+"Falha ao reiniciar jogo: "+textoErro+RESETA);
+			System.out.print("\n"+VERMELHO+"Falha ao reiniciar jogo: "+textoErro+"."+RESETA);
+		}else if (tipoErro == "Mapa"){
+			System.out.print("\n"+VERMELHO+"Falha ao desenhar mapa: "+textoErro+"."+RESETA);
+		}else if (tipoErro == "LimpaTela"){
+			System.out.print("\n"+VERMELHO+"Falha ao limpar a tela: "+textoErro+"."+RESETA);
+		}else if (tipoErro == "Espera"){
+			System.out.print("\n"+VERMELHO+"Falha no comando esperar: "+textoErro+"."+RESETA);
+		}else if (tipoErro == "Arte"){
+			System.out.print("\n"+VERMELHO+"Falha ao desenhar arte: "+textoErro+"."+RESETA);
+		}else if (tipoErro == "Título"){
+			System.out.print("\n"+VERMELHO+"Falha ao definir título: "+textoErro+"."+RESETA);
 		}
         espera(1490);
       //===
@@ -138,7 +192,7 @@ public final class Visual{
                 new ProcessBuilder("clear").inheritIO().start().waitFor();
             }
         }catch (Exception e){
-            System.out.println(VERMELHO+"Falha ao limpar a tela: "+e.getMessage()+"."+RESETA);
+			desenhaErro("LimpaTela", e.getMessage());
         }
       //===
     }
@@ -147,7 +201,7 @@ public final class Visual{
         try{
             TimeUnit.MILLISECONDS.sleep(segundos);
         }catch (InterruptedException e){
-            System.out.println(VERMELHO+"Falha no comando esperar: "+e.getMessage()+"."+RESETA);
+            desenhaErro("Espera", e.getMessage());
         }
     }
     
@@ -167,7 +221,7 @@ public final class Visual{
                 }else if (mapaAtual[linha][coluna].equals("~")){ //Água
                     System.out.print(AZUL+mapaAtual[linha][coluna]+RESETA);
                 }else if(mapaAtual[linha][coluna].equals(".") || mapaAtual[linha][coluna].equals("#")){
-					System.out.print(BRANCO+mapaAtual[linha][coluna]+RESETA);
+					System.out.print(BRANCO_ESCURO+mapaAtual[linha][coluna]+RESETA);
 				}else if(mapaAtual[linha][coluna].equals("¨")){ //Grama
 					System.out.print(VERDE+mapaAtual[linha][coluna]+RESETA);
 				}else if(mapaAtual[linha][coluna].equals("&")){ //Tocha
@@ -186,35 +240,10 @@ public final class Visual{
         try{
             quadro = Files.readString(Paths.get("Artes\\"+arte+".txt"));
         }catch(IOException e){
-            System.out.println(VERMELHO+"Falha ao desenhar arte: "+e.getMessage()+"."+RESETA);
+			desenhaErro("Arte", e.getMessage());
         }
     }
     
-    public void desenhaTítulo(){
-        System.out.println("");
-        desenhaArte("Título");
-        System.out.println(AMARELO+quadro+RESETA);
-        System.out.println("");
-        System.out.print(CINZA+"Autor: "+VERDE_MUSGO+"Carlos S. Rehem"+RESETA+"\n");
-		System.out.print(CINZA+"Versão: "+""+BRANCO+nomeVersão+RESETA+"\n");
-		espera(100);
-		System.out.println("");
-		desenhaBarra();
-		for (int i = 0; i <= opçõesTítulo.length-1; i++){
-			System.out.println(BRANCO+opçõesTítulo[i]+RESETA);
-		}
-		desenhaBarra();
-    }
-
-    public void desenhaComandos(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento, int eventoAtualId){		
-		System.out.println(CINZA+"============================="+RESETA);
-        System.out.println(BRANCO+"1. Esquerda       2. Direita"+RESETA);
-        System.out.println(BRANCO+"3. Cima           4. Baixo  "+RESETA);
-        System.out.println(BRANCO+"5. Inventário     6. Título "+RESETA);
-		if(eventoAtivo) desenhaNomeEvento(eventoAtivo, mapaNome, pos_x, pos_y, tipoEvento, eventoAtualId);
-        System.out.println(CINZA+"============================="+RESETA);
-    }
-	
 	private void desenhaNomeEvento(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento, int eventoAtualId){
 		if(mapas != null && mapas.size() > 0 && mapaNome != "Vazio" && eventoAtivo == true){
 			if (tipoEvento.equals("Placa")) System.out.println("7. "+AMARELO+"Ler placa"+RESETA);
@@ -258,14 +287,6 @@ public final class Visual{
 	  //===
 	}
 
-    public void desenhaSair(){
-        System.out.print(BRANCO+"Fechando");
-        espera(1000); System.out.print(BRANCO+".");
-        espera(870); System.out.print(BRANCO+".");
-        espera(780); System.out.print(BRANCO+".");
-        espera(100); limpaTela();
-    }
-    
     public String getBlocoAtual(int pos_x, int pos_y){
         if (mapaAtual != null){
             texto = mapaAtual[pos_x][pos_y];

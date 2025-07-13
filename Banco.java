@@ -27,6 +27,7 @@ public final class Banco{
     private String blocoAparência;
     private boolean blocoBloqueio;
 	
+	//Informações do jogador.
     private static int posJogador_x, posJogador_y, 
 	posInicialJogador_x, posInicialJogador_y,
 	posJogadorAnterior_x, posJogadorAnterior_y;
@@ -81,7 +82,7 @@ public final class Banco{
 		bloco = new Caractere(blocoAparência, false, true);
         caracteres.add(bloco);
 	}
-	
+		
 	public static void resetaInformaçõesJogador(){
 		posJogador_x = posInicialJogador_x;
         posJogador_y = posInicialJogador_y;
