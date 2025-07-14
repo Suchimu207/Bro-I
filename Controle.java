@@ -33,7 +33,7 @@ public final class Controle{
 	
 	private final String VAZIO;
 	
-    private boolean rodarJogo, debug, bloqueioBloco, bloqueioLimite, isEventoAtivo;
+    private boolean rodarJogo, debug, bloqueioBloco, bloqueioLimite, isEventoAtivo, debugComandos;
     private int entrada, posJogador_x, posJogador_y, mapaTamanhoX, mapaTamanhoY, idContador, 
 	posEvento_x, posEvento_y, eventoAtualId;
     
@@ -60,6 +60,7 @@ public final class Controle{
 	
         rodarJogo = true;
         debug = true;
+		debugComandos = false;
 		bloqueioBloco = false;
 		bloqueioLimite = false;
 		mapaEventos = false;
@@ -116,6 +117,12 @@ public final class Controle{
 			case 0:
 			if (debug) reiniciarJogo();
 			break;
+			case -207:
+			if (debug) ativarDebugComandos();
+            break;
+			case -1:
+			if (debug) teletransporte();
+            break;
             }
     }
 	
@@ -124,7 +131,7 @@ public final class Controle{
             visualg.desenhaSeta(); entrada = teclado.nextInt();
         }catch(InputMismatchException e){
             visualg.desenhaErro("Entrada", e.getMessage());
-            entrada = -1;
+            entrada = -99999;
         }finally{
             teclado.nextLine();
         }
@@ -183,7 +190,7 @@ public final class Controle{
 		}else if (estadoAtualJogo.equals(estadoAtualJogo.TITULO)){
 			resetaInformaçõesJogatina();
 			Banco.resetaInformaçõesJogador();
-			if (debug == false) visualg.desenhaCarregamento();
+			//if (debug == false) visualg.desenhaCarregamento();
 		}
     }
     
@@ -296,11 +303,7 @@ public final class Controle{
 						Banco.setJogador_y(posJogador_y);
 						
 						mapaAtual = Eventos.getMapaNome();
-						ocorrências.clear();
-						isEventoAtivo = false;
-						tipoEventoAtual = VAZIO;
-						eventoAtualId = -1;
-						mapaEventos = false;
+						resetaEventos();
 						break;
                 }
                 break;
@@ -309,15 +312,70 @@ public final class Controle{
 	  //===
 	}
 	
+	private void resetaEventos(){
+		ocorrências.clear();
+		isEventoAtivo = false;
+		tipoEventoAtual = VAZIO;
+		eventoAtualId = -1;
+		mapaEventos = false;
+	}
+	
     private void ativarDebug(){
         if (debug == true){
             debug = false;
         }else debug = true;
     }
+	
+	private void ativarDebugComandos(){
+		if (debugComandos == true){
+            debugComandos = false;
+        }else debugComandos = true;
+	}
     
+	private void teletransporte(){
+		if(estadoAtualJogo.equals(estadoAtualJogo.MAPA)){
+			System.out.println("");
+			System.out.println("Mudar mapa:");
+			tratarEntrada();
+			if (entrada <= mapas.size() && entrada >= 0){
+				mapaAtual = mapas.get(entrada); resetaEventos();
+			}else visualg.desenhaErro("ProcurarMapa",VAZIO);
+			
+			System.out.println("");
+			System.out.println("Jogador_X:");
+			tratarEntrada();
+			posJogador_x = Banco.getJogador_x();
+			posJogador_x = entrada;
+       
+			System.out.println("");
+		
+			System.out.println("Jogador_Y:");
+			tratarEntrada();
+			posJogador_y = Banco.getJogador_y();
+			posJogador_y = entrada;
+				
+			mapaTamanhoX = visualg.getQuantidadeLinhasX()-1;
+			mapaTamanhoY = visualg.getQuantidadeColunasY(); //Número exato.
+			
+			if (posJogador_x <= mapaTamanhoX && posJogador_x >= 0
+			&& posJogador_y <= mapaTamanhoY && posJogador_y >= 0){
+				Banco.setJogador_x(posJogador_x);
+				Banco.setJogador_y(posJogador_y);
+			}else{
+				visualg.desenhaErro("ProcurarPosição",VAZIO);
+				
+				posJogador_x = Banco.getJogadorAnterior_x();
+				Banco.setJogador_x(posJogador_x);
+				posJogador_y = Banco.getJogadorAnterior_y();
+				Banco.setJogador_y(posJogador_y);
+			}
+		 //===
+		}
+	}
+	
     private void mostrarDebug(){
 		visualg.desenhaBarra();
-        System.out.println("Jogador_X: "+posJogador_x+"\nJogador_Y: "+posJogador_y);
+        System.out.println("Jogador_X: "+Banco.getJogador_x()+"\nJogador_Y: "+Banco.getJogador_y());
 		System.out.println("TamanhoMapa_X: "+mapaTamanhoX+"\nTamanhoMapa_Y: "+mapaTamanhoY);
 		System.out.println("isEventoAtivo: "+isEventoAtivo);
 		System.out.println("TipoEventoAtual: "+tipoEventoAtual+"\nEventoAtualId: "+eventoAtualId);
@@ -326,6 +384,11 @@ public final class Controle{
 		System.out.println("Ocorrências: "+ocorrências.size());
 		System.out.println("MapaEventos: "+mapaEventos);
 		visualg.desenhaBarra();
+		if(debugComandos == true){
+			System.out.println(">>Comandos especiais:");
+			System.out.println("Teletransporte: -1 (Somente em mapas)");
+			visualg.desenhaBarra();
+		}
     }
     
     private void moverJogador(){

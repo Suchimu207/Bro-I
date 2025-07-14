@@ -121,6 +121,7 @@ public final class Visual{
 			if (mapas.get(1).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Centro";
 			if (mapas.get(2).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Plantação";
 			if (mapas.get(3).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Arredores";
+			if (mapas.get(4).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Estrada";
 		}else nomeDoMapa = VAZIO;
 		
 		System.out.println(AMARELO+">>"+nomeDoMapa+RESETA);
@@ -171,6 +172,10 @@ public final class Visual{
 			System.out.print("\n"+VERMELHO+"Falha ao desenhar arte: "+textoErro+"."+RESETA);
 		}else if (tipoErro == "Título"){
 			System.out.print("\n"+VERMELHO+"Falha ao definir título: "+textoErro+"."+RESETA);
+		}else if (tipoErro == "ProcurarMapa"){
+			System.out.print("\n"+VERMELHO+"Falha ao procurar mapa.\n"+RESETA);
+		}else if (tipoErro == "ProcurarPosição"){
+			System.out.print("\n"+VERMELHO+"Falha ao procurar posição.\n"+RESETA);
 		}
         espera(1490);
       //===
@@ -261,7 +266,7 @@ public final class Visual{
 					System.out.println("7. "+AMARELO+"Loja de consumíveis"+RESETA);
 				}
 				if (eventoAtualId == 5 && tipoEvento.equals("Transição") || eventoAtualId == 7 && tipoEvento.equals("Transição")){
-					System.out.println("7. "+AMARELO+"Bosqueverde_4"+RESETA);
+					System.out.println("7. "+AMARELO+"Ir para estrada"+RESETA);
 				}
 				if (eventoAtualId == 6 && tipoEvento.equals("Transição") || eventoAtualId == 8 && tipoEvento.equals("Transição")){
 					System.out.println("7. "+AMARELO+"Ir para arredores"+RESETA);
@@ -279,6 +284,12 @@ public final class Visual{
 			//>>Vilarejo Bosqueverde - Arredores
 			if (mapaNome.equals(mapas.get(3))){
 				if (eventoAtualId <= 3 && tipoEvento.equals("Transição") && eventoAtualId != -1 && eventoAtualId != 1){
+					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
+				}
+			}
+			//>>Vilarejo Bosqueverde - Estrada
+			if (mapaNome.equals(mapas.get(4))){
+				if (eventoAtualId == 4 && tipoEvento.equals("Transição") || eventoAtualId == 6 && tipoEvento.equals("Transição")){
 					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
 				}
 			}

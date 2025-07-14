@@ -7,12 +7,10 @@ import java.util.ArrayList;
 * Bró I
 */
 
-//TODO: Aprimorar modo debug.
-
 public class Main{
     public static void main(String[] args){
 		String título = "Bró I";
-		String nomeVersão = "0.34";
+		String nomeVersão = "0.35";
 		String[] opçõesTítulo = {"1. Novo Jogo", "2. Continuar", "3. Sair"};
 		String os = System.getProperty("os.name").toLowerCase();
 		final String VAZIO = "Vazio";
@@ -30,6 +28,7 @@ public class Main{
 		mapas.add("Bosqueverde_1");
 		mapas.add("Bosqueverde_2");
 		mapas.add("Bosqueverde_3");
+		mapas.add("Bosqueverde_4");
 		
 		Eventos.setMapas(mapas);
 		

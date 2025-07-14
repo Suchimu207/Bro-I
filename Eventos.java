@@ -80,7 +80,7 @@ public class Eventos{
 			eventoAtualId = atualIdEvento;
 			posJogador_x = posiçãoJogador_x;
 			posJogador_y = posiçãoJogador_y;
-			
+				
 			//Vilarejo Bosqueverde - Centro
 			if (mapaNome.equals(mapas.get(1))){
 				if (eventoAtualId == 1){
@@ -93,10 +93,20 @@ public class Eventos{
 					posJogador_x = 12;
 					posJogador_y = 14;
 				}
+				if (eventoAtualId == 5){
+					mapaNome = mapas.get(4);
+					posJogador_x = 5;
+					posJogador_y = 27;
+				}
 				if (eventoAtualId == 6){
 					mapaNome = mapas.get(3);
 					posJogador_x = 5;
 					posJogador_y = 1;
+				}
+				if (eventoAtualId == 7){
+					mapaNome = mapas.get(4);
+					posJogador_x = 6;
+					posJogador_y = 27;
 				}
 				if (eventoAtualId == 8){
 					mapaNome = mapas.get(3);
@@ -129,7 +139,20 @@ public class Eventos{
 					posJogador_x = 6;
 					posJogador_y = 27;
 				}
-			}			
+			}
+			//>>Vilarejo Bosqueverde - Estrada
+			if (mapaNome.equals(mapas.get(4))){
+				if (eventoAtualId == 4){
+					mapaNome = mapas.get(1);
+					posJogador_x = 5;
+					posJogador_y = 1;
+				}
+				if (eventoAtualId == 6){
+					mapaNome = mapas.get(1);
+					posJogador_x = 6;
+					posJogador_y = 1;
+				}
+			}
 	  //===
 	}
 	
