@@ -1,5 +1,4 @@
 import java.util.List;
-import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.nio.file.Files;   
@@ -7,11 +6,11 @@ import java.nio.file.Paths;
 import java.io.IOException;
 
 public final class Visual{
-	private Hashtable tipoEventos;
 	private ArrayList<String> mapas;
 	
 	private String[][] mapaAtual;
 	private String[] opçõesTítulo;
+	private TipoBloco tipoEventoAtual;
 	
     private String os, título, texto, quadro, nomeVersão, nomeDoMapa;
     private int saída, quantidadeLinhasX, quantidadeColunasY;
@@ -23,8 +22,7 @@ public final class Visual{
 
 	private boolean eventoAqui;
     
-    public Visual(Hashtable tipoEventos, String nomeVersão, String título, String[] opçõesTítulo, ArrayList<String> mapas, String VAZIO, String os){
-		this.tipoEventos = tipoEventos;
+    public Visual(String nomeVersão, String título, String[] opçõesTítulo, ArrayList<String> mapas, String VAZIO, String os){
 		this.nomeVersão = nomeVersão;
 		this.título = título;
 		this.opçõesTítulo = opçõesTítulo;
@@ -122,6 +120,9 @@ public final class Visual{
 			if (mapas.get(2).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Plantação";
 			if (mapas.get(3).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Arredores";
 			if (mapas.get(4).equals(mapaAtual)) nomeDoMapa = "Vilarejo Bosqueverde - Estrada";
+			if (mapas.get(5).equals(mapaAtual)) nomeDoMapa = "Ilha Paraíso - Lago dos Sonhos";
+			if (mapas.get(6).equals(mapaAtual)) nomeDoMapa = "Ilha Paraíso - Estrada";
+			if (mapas.get(7).equals(mapaAtual)) nomeDoMapa = "Ilha Paraíso - Porto Esperança";
 		}else nomeDoMapa = VAZIO;
 		
 		System.out.println(AMARELO+">>"+nomeDoMapa+RESETA);
@@ -144,15 +145,6 @@ public final class Visual{
         }catch(IOException e){
 			desenhaErro("Mapa", e.getMessage());
         }
-    }
-	
-	public void desenhaComandos(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento, int eventoAtualId){		
-		System.out.println(CINZA+"============================="+RESETA);
-        System.out.println(BRANCO+"1. Esquerda       2. Direita"+RESETA);
-        System.out.println(BRANCO+"3. Cima           4. Baixo  "+RESETA);
-        System.out.println(BRANCO+"5. Inventário     6. Título "+RESETA);
-		if(eventoAtivo) desenhaNomeEvento(eventoAtivo, mapaNome, pos_x, pos_y, tipoEvento, eventoAtualId);
-        System.out.println(CINZA+"============================="+RESETA);
     }
 	
     public void desenhaErro(String tipoErro, String textoErro){
@@ -213,12 +205,8 @@ public final class Visual{
 	private void desenhaCaractere(int pos_x, int pos_y){
 		for (int linha = 0; linha < mapaAtual.length; linha++){
 			for (int coluna = 0; coluna < mapaAtual[linha].length; coluna++){
-				for (int i = 0; i <= tipoEventos.size(); i++){
-					if(tipoEventos.containsValue(mapaAtual[linha][coluna])){
-						eventoAqui = true;
-						break;
-					}else eventoAqui = false;
-				}
+				TipoBloco tipo = TipoBloco.procuraBloco(mapaAtual[linha][coluna]);
+				eventoAqui = tipo.isEvento();
 				
 				if (mapaAtual[linha][coluna] == mapaAtual[pos_x][pos_y]){
                     mapaAtual[pos_x][pos_y] = "@";
@@ -249,51 +237,72 @@ public final class Visual{
         }
     }
     
-	private void desenhaNomeEvento(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, String tipoEvento, int eventoAtualId){
+	public void desenhaComandos(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, TipoBloco tipoEventoAtual, int eventoAtualId){
+		this.tipoEventoAtual = tipoEventoAtual;
+		System.out.println(CINZA+"============================="+RESETA);
+        System.out.println(BRANCO+"1. Esquerda       2. Direita"+RESETA);
+        System.out.println(BRANCO+"3. Cima           4. Baixo  "+RESETA);
+        System.out.println(BRANCO+"5. Inventário     6. Título "+RESETA);
+		if(eventoAtivo) desenhaNomeEvento(eventoAtivo, mapaNome, pos_x, pos_y, eventoAtualId);
+        System.out.println(CINZA+"============================="+RESETA);
+    }
+	
+	private void desenhaNomeEvento(boolean eventoAtivo, String mapaNome, int pos_x, int pos_y, int eventoAtualId){
 		if(mapas != null && mapas.size() > 0 && mapaNome != "Vazio" && eventoAtivo == true){
-			if (tipoEvento.equals("Placa")) System.out.println("7. "+AMARELO+"Ler placa"+RESETA);
-			if (tipoEvento.equals("Báu")) System.out.println("7. "+AMARELO+"Abrir báu"+RESETA);
+			if (tipoEventoAtual == TipoBloco.PLACA) System.out.println("7. "+AMARELO+"Ler placa"+RESETA);
+			if (tipoEventoAtual == TipoBloco.BAU) System.out.println("7. "+AMARELO+"Abrir báu"+RESETA);
 			
 			//Vilarejo Bosqueverde - Centro
 			if (mapaNome.equals(mapas.get(1))){
-				if (eventoAtualId <= 2 && tipoEvento.equals("Transição") && eventoAtualId != -1){
+				if (eventoAtualId <= 2 && tipoEventoAtual == TipoBloco.TRANSICAO && eventoAtualId != -1){
 					System.out.println("7. "+AMARELO+"Ir para plantação"+RESETA);
 				}
-				if (eventoAtualId == 3 && tipoEvento.equals("Loja")){
+				if (eventoAtualId == 3 && tipoEventoAtual == TipoBloco.LOJA){
 					System.out.println("7. "+AMARELO+"Loja de armas"+RESETA);
 				}
-				if (eventoAtualId == 4 && tipoEvento.equals("Loja")){
+				if (eventoAtualId == 4 && tipoEventoAtual == TipoBloco.LOJA){
 					System.out.println("7. "+AMARELO+"Loja de consumíveis"+RESETA);
 				}
-				if (eventoAtualId == 5 && tipoEvento.equals("Transição") || eventoAtualId == 7 && tipoEvento.equals("Transição")){
+				if (eventoAtualId == 5 && tipoEventoAtual == TipoBloco.TRANSICAO || eventoAtualId == 7 && tipoEventoAtual == TipoBloco.TRANSICAO){
 					System.out.println("7. "+AMARELO+"Ir para estrada"+RESETA);
 				}
-				if (eventoAtualId == 6 && tipoEvento.equals("Transição") || eventoAtualId == 8 && tipoEvento.equals("Transição")){
+				if (eventoAtualId == 6 && tipoEventoAtual == TipoBloco.TRANSICAO || eventoAtualId == 8 && tipoEventoAtual == TipoBloco.TRANSICAO){
 					System.out.println("7. "+AMARELO+"Ir para arredores"+RESETA);
 				}
-				if (eventoAtualId == 9 && tipoEvento.equals("Casa")){
+				if (eventoAtualId == 9 && tipoEventoAtual == TipoBloco.CASA){
 					System.out.println("7. "+AMARELO+"Casa da Elisabeth Rehem"+RESETA);
 				}
 			}
 			//Vilarejo Bosqueverde - Plantação
 			if (mapaNome.equals(mapas.get(2))){
-				if (eventoAtualId == 4 && tipoEvento.equals("Transição") || eventoAtualId == 5 && tipoEvento.equals("Transição")){
+				if (eventoAtualId == 4 && tipoEventoAtual == TipoBloco.TRANSICAO || eventoAtualId == 5 && tipoEventoAtual == TipoBloco.TRANSICAO){
 					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
 				}
 			}
 			//>>Vilarejo Bosqueverde - Arredores
 			if (mapaNome.equals(mapas.get(3))){
-				if (eventoAtualId <= 3 && tipoEvento.equals("Transição") && eventoAtualId != -1 && eventoAtualId != 1){
+				if (eventoAtualId <= 3 && tipoEventoAtual == TipoBloco.TRANSICAO && eventoAtualId != -1){
 					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
 				}
 			}
 			//>>Vilarejo Bosqueverde - Estrada
 			if (mapaNome.equals(mapas.get(4))){
-				if (eventoAtualId == 4 && tipoEvento.equals("Transição") || eventoAtualId == 6 && tipoEvento.equals("Transição")){
+				if (eventoAtualId == 4 && tipoEventoAtual == TipoBloco.TRANSICAO || eventoAtualId == 6 && tipoEventoAtual == TipoBloco.TRANSICAO){
 					System.out.println("7. "+AMARELO+"Ir para centro"+RESETA);
 				}
+				if (eventoAtualId == 1 && tipoEventoAtual == TipoBloco.CASA){
+					System.out.println("7. "+AMARELO+"Quartel"+RESETA);
+				}
+				if (eventoAtualId == 3 && tipoEventoAtual == TipoBloco.TRANSICAO || eventoAtualId == 5 && tipoEventoAtual == TipoBloco.TRANSICAO){
+					System.out.println("7. "+AMARELO+"Ir para Lago dos Sonhos"+RESETA);
+				}
 			}
-			
+			//>>Ilha Paraíso - Lago dos Sonhos
+			if (mapaNome.equals(mapas.get(5))){
+				if (eventoAtualId == 3 && tipoEventoAtual == TipoBloco.TRANSICAO || eventoAtualId == 5 && tipoEventoAtual == TipoBloco.TRANSICAO){
+					System.out.println("7. "+AMARELO+"Ir para quartel"+RESETA);
+				}
+			}
 		}
 	  //===
 	}
