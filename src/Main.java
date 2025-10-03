@@ -15,7 +15,7 @@ public class Main{
 	public static Properties getProp() throws IOException {
 		Properties props = new Properties();
 		FileInputStream arquivo = new FileInputStream(
-				"./Propriedades/config.properties");
+				"./System/config.properties");
 		props.load(arquivo);
 		return props;
 	}
@@ -25,6 +25,13 @@ public class Main{
 
 		String título = "Bró I";
 		String nomeVersão = config.getProperty("game.version");
+		
+		String debugInicialValor = config.getProperty("initial.debug");
+		boolean debugInicial;
+		
+		if (debugInicialValor.equals("false")){
+			debugInicial = false;
+		}else debugInicial = true;
 		
 		String[] opçõesTítulo = {"1. Novo Jogo", "2. Continuar", "3. Sair"};
 		String os = System.getProperty("os.name").toLowerCase();
@@ -49,6 +56,6 @@ public class Main{
 		Scanner teclado = new Scanner(System.in);
 		Banco arquivista = new Banco(posJogador_x, posJogador_y);
 		Visual visualg = new Visual(nomeVersão, título, opçõesTítulo, mapas, VAZIO, os);
-		Controle mestre = new Controle(visualg, arquivista, teclado, mapaInicial, mapas, VAZIO, os);
+		Controle mestre = new Controle(visualg, arquivista, teclado, mapaInicial, mapas, VAZIO, os, debugInicial);
     }
 }

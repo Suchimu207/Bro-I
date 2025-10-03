@@ -40,7 +40,7 @@ public final class Controle{
 	private TipoBloco tipoEventoAtual;
 	private boolean mapaEventos, blocoEventoAchado;
 	
-    public Controle(Visual visualg, Banco arquivista, Scanner teclado, String mapaInicial, ArrayList<String> mapas, String VAZIO, String os){
+    public Controle(Visual visualg, Banco arquivista, Scanner teclado, String mapaInicial, ArrayList<String> mapas, String VAZIO, String os, boolean debugInicial){
 		this.visualg = visualg;
         this.arquivista = arquivista;
         this.teclado = teclado;
@@ -59,7 +59,7 @@ public final class Controle{
 		eventoAtualId = -1;
 	
         rodarJogo = true;
-        debug = true;
+        debug = debugInicial;
 		debugComandos = false;
 		bloqueioBloco = false;
 		bloqueioLimite = false;
